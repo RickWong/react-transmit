@@ -1,0 +1,12 @@
+.idea/
+node_modules/
+dist/
+*.log
+*.map
+.DS_Store
+
+static/
+src/example/
+src/example.*
+tmp/
+webpack.*.js

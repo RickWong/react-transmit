@@ -1,0 +1,41 @@
+{
+  "name": "react-transmit",
+  "description": "Relay-ish library without the GraphQL.",
+  "version": "0.9.0",
+  "license": "BSD-3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RickWong/react-transmit.git"
+  },
+  "homepage": "https://github.com/RickWong/react-transmit",
+  "keywords": [
+    "react",
+    "transmit",
+    "relay",
+    "react-component"
+  ],
+  "main": "src/lib/react-transmit.js",
+  "scripts": {
+    "localhost": "sleep 2; which open && open http://localhost:8080",
+    "build": "webpack --verbose --colors --display-error-details --config webpack.client.js",
+    "watch-client": "webpack --verbose --colors --display-error-details --config webpack.client-watch.js && webpack-dev-server --config webpack.client-watch.js",
+    "watch": "concurrent --kill-others 'npm run watch-client' 'npm run localhost'"
+  },
+  "dependencies": {
+    "react": "0.13.1",
+    "react-inline-css": "1.1.1"
+  },
+  "devDependencies": {
+    "babel-core": "4.7.16",
+    "babel-loader": "4.2.0",
+    "babel-runtime": "4.7.16",
+    "concurrently": "0.0.5",
+    "json-loader": "0.5.1",
+    "react-hot-loader": "1.2.3",
+    "webpack": "1.7.3",
+    "webpack-dev-server": "1.7.0"
+  },
+  "engines": {
+    "node" : ">=0.10.32"
+  }
+}
