@@ -10,11 +10,22 @@ Inspired by: http://facebook.github.io/react/blog/2015/03/19/building-the-facebo
 
 	npm install react-transmit
 
+## Run the example
+
+````
+git clone https://github.com/RickWong/react-transmit.git
+cd react-transmit
+
+npm install -g concurrently webpack webpack-dev-server
+npm install
+npm run watch   # automatically opens browser
+````
+
 ## Usage
 
-TODO.
-
 ````js
+const Newsfeed = React.createClass(...);
+
 export default Transmit.createContainer(Newsfeed, {
 	queryParams: {
 		count: 1
