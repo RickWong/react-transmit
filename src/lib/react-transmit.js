@@ -4,36 +4,46 @@
 var React = require("react");
 var assign = React.__spread;
 
+/**
+ * @function createContainer
+ */
 var createContainer = function (Component, options) {
 	options = options || {};
-	var queryParams = options.queryParams || {};
-	var queries = options.queries || {};
+
+	var _queryParams = options.queryParams || {};
+	var _queries = options.queries || {};
 
 	return React.createClass({
 		statics: {
-			getQuery: function (query) {
-				return queries[query];
+			getQuery: function (query, nextQueryParams) {
+				return _queries[query](assign({}, _queryParams, nextQueryParams));
 			}
 		},
 		componentWillMount: function () {
-			this.setQueryParams(queryParams);
+			this.setQueryParams(_queryParams);
 		},
 		setQueryParams: function (nextQueryParams) {
-			queryParams = assign(queryParams, nextQueryParams);
-			this.transmit();
-		},
-		transmit: function () {
-			var promises = [];
-			var nextState = {};
 			var _this = this;
 
-			for (var query in queries) {
-				if (queries.hasOwnProperty(query)) {
-					var promise = queries[query](queryParams);
-					promise.then(function (value) {
+			setTimeout(function () {
+				assign(_queryParams, nextQueryParams);
+				_this.transmit();
+			}, 0);
+		},
+		transmit: function () {
+			var _this = this;
+			var promises = [];
+			var prevProps = this.state || {};
+			var currentProps = this.props || {};
+			var nextState = {};
+
+			for (var query in _queries) {
+				if (_queries.hasOwnProperty(query) && !currentProps[query]) {
+					var promise = _queries[query](_queryParams, prevProps);
+
+					promises.push(promise.then(function (value) {
 						nextState[query] = value;
-					});
-					promises.push(promise);
+					}));
 				}
 			}
 
@@ -43,7 +53,7 @@ var createContainer = function (Component, options) {
 		},
 		render: function () {
 			var props = {
-				queryParams: queryParams,
+				queryParams: _queryParams,
 				setQueryParams: this.setQueryParams
 			};
 

@@ -1,7 +1,7 @@
 {
   "name": "react-transmit",
-  "description": "Relay-ish library without the GraphQL.",
-  "version": "0.9.0",
+  "description": "Relay-inspired library based on Promises instead of GraphQL.",
+  "version": "1.0.0",
   "license": "BSD-3",
   "repository": {
     "type": "git",
@@ -22,8 +22,9 @@
     "watch": "concurrent --kill-others 'npm run watch-client' 'npm run localhost'"
   },
   "dependencies": {
-    "react": "0.13.1",
-    "react-inline-css": "1.1.1"
+    "react": ">= 0.12.0",
+    "react-inline-css": "1.1.1",
+    "isomorphic-fetch": "2.0.0"
   },
   "devDependencies": {
     "babel-core": "4.7.16",

@@ -1,4 +1,4 @@
 import React from "react";
-import Newsfeed from "example/Newsfeed";
+import Main from "example/Main";
 
-React.render(<Newsfeed />, document.getElementById("react-root"));
+React.render(<Main />, document.getElementById("react-root"));

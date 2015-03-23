@@ -1,46 +1,36 @@
-![](http://i.imgur.com/wZNNrl4.png?1)
+![](http://i.imgur.com/ODCeNP2.png?1)
+
+[View live demo](https://edealer.nl/react-transmit/) 
 
 # React Transmit
 
-A Promising Relay-ish library without the GraphQL.
+Relay-inspired library based on Promises instead of GraphQL.
 
-Inspired by: http://facebook.github.io/react/blog/2015/03/19/building-the-facebook-news-feed-with-relay.html
+Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.io/react/blog/2015/03/19/building-the-facebook-news-feed-with-relay.html) (React blog)
 
 ## Installation
 
 	npm install react-transmit
 
-## Run the example
-
-````
-git clone https://github.com/RickWong/react-transmit.git
-cd react-transmit
-
-npm install -g concurrently webpack webpack-dev-server
-npm install
-npm run watch   # automatically opens browser
-````
-
 ## Usage
 
 ````js
+import React from "react";
+import Transmit from "react-transmit";
+
 const Newsfeed = React.createClass(...);
 
 export default Transmit.createContainer(Newsfeed, {
 	queryParams: {
-		count: 1
+		count: 50,
+		page: 1
 	},
 	queries: {
-		stories (queryParams) {
-			return new Promise(function (resolve, reject) {
-				var storyPromises = [];
-
-				for (var i=0; i<queryParams.count; i++) {
-					storyPromises.push(Story.getQuery("story"));
-				}
-
-				Promise.all(storyPromises).then(resolve);
-			});
+		stories (queryParams, prevProps) {
+			// All Transmit queries return a Promise.
+			return Promise.all([
+				Story.getQuery("story");
+			]);
 		}
 	}
 });

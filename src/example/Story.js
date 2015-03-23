@@ -9,62 +9,66 @@ const Story = React.createClass({
 	statics: {
 		css: () => `
 			& {
-				padding: 12px;
-				background: #fff;
-				border: 1px solid #e5e5e5;
-				border-radius: 3px;
-				margin-bottom: 8px;
+				padding: 6px 12px;
+				border: 1px solid #e1e1e1;
+				border-width: 0 1px;
+				background: #f6f7f8;
+				clear: both;
+				font-size: 12px;
+			}
+			&:last-child {
+				border-radius: 0 0 3px 3px;
 			}
 			& img {
 				float: left;
-				border: 1px solid #e5e5e5;
-				margin: 0 6px 12px 0;
+				border: 1px solid #e1e1e1;
+				margin-right: 6px;
+				width: 20px;
+				height: 20px;
 			}
 			& h4 {
-				color: #3b5998;
-				margin: 5px 0;
-			}
-			& span {
-				color: #bbb;
-				font-size: 12px;
-			}
-			& div {
-				clear: both;
+				display: inline-block;
+				margin: 4px 0;
 			}`
 	},
 	render() {
-		var story = this.props.story;
+		const story = this.props.story;
 
+		/**
+		 * Unlike with Relay, Transmit properties aren't guaranteed.
+ 		 */
 		if (!story) {
 			return null;
 		}
 
 		return (
 			<InlineCss stylesheet={Story.css()} namespace="Story">
-				<img src={story.author.profile_picture.uri} />
-				<h4>{story.author.name}</h4>
-				<span>Mar 22</span>
-				<div>{story.text}</div>
+				<img src={story.user.profile_picture.uri} />
+				<h4><a href={story.user.url} target="_blank">{story.user.name}</a></h4>
+				<span>{story.text}</span>
 			</InlineCss>
 		);
 	}
 });
 
+/**
+ * Like Relay, export a Transmit container instead of the React component.
+ */
 export default Transmit.createContainer(Story, {
 	queries: {
-		story (queryParams) {
+		story (queryParams, prevProps) {
+
 			return new Promise(function (resolve, reject) {
-				var story = {
-					author: {
-						name:            "Rick Wong",
+				resolve({
+					user: {
+						name:            queryParams.stargazer.login,
+						url:             queryParams.stargazer.url,
 						profile_picture: {
-							uri: "https://avatars3.githubusercontent.com/u/40102?v=3&s=40"
+							uri: `${queryParams.stargazer.avatar_url}&s=20`
 						}
 					},
-					text:   "React Transmit. A Relay-ish library."
-				};
-
-				resolve(story);
+					text:   " likes this."
+				});
 			});
 		}
 	}
