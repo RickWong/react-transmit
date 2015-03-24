@@ -62,7 +62,7 @@ export default Transmit.createContainer(Story, {
 				resolve({
 					user: {
 						name:            queryParams.stargazer.login,
-						url:             queryParams.stargazer.url,
+						url:             queryParams.stargazer.html_url,
 						profile_picture: {
 							uri: `${queryParams.stargazer.avatar_url}&s=20`
 						}
