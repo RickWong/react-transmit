@@ -22,14 +22,13 @@ const Newsfeed = React.createClass(...);
 
 export default Transmit.createContainer(Newsfeed, {
 	queryParams: {
-		count: 50,
-		page: 1
+		count: 10
 	},
 	queries: {
 		stories (queryParams, prevProps) {
 			// All Transmit queries return a Promise.
 			return Promise.all([
-				Story.getQuery("story");
+				Story.getQuery("story")
 			]);
 		}
 	}

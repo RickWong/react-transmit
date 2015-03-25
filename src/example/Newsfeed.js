@@ -1,4 +1,3 @@
-import _fetch from "isomorphic-fetch";
 import React from "react";
 import InlineCss from "react-inline-css";
 import Transmit from "lib/react-transmit";
@@ -9,40 +8,43 @@ import Story from "example/Story";
  */
 const Newsfeed = React.createClass({
 	statics: {
-		css: (avatarSize) => `
-			& footer {
+		css: () => `
+			& {
+				width: 500px;
+				margin: 0 auto;
+			}
+			& > footer {
 				text-align: center;
-				margin: 12px;
+				margin: 20px;
+			}
+			& button {
+				border: 1px solid #ccc;
+				background: #f4f4f4;
+				padding: 5px 15px;
+				border-radius: 3px;
+				cursor: pointer;
+				outline: 0;
 			}`
 	},
-	onLoadMore (event) {
-		event.preventDefault();
-
+	onLoadMore () {
 		this.props.setQueryParams({
-			page: this.props.queryParams.page + 1
+			nextStoryId: this.props.queryParams.nextStoryId + 1
 		});
 	},
 	render () {
-		// This is a normal property.
-		const repositoryUrl = this.props.repositoryUrl;
+		// This is a normal prop.
+		const {repositoryUrl} = this.props;
 
 		/**
-		 * This is a Transmit property.
+		 * This is a Transmit prop.
 		 */
-		const stories = this.props.stories;
-
-		/**
-		 * Unlike with Relay, Transmit properties aren't guaranteed.
-		 */
-		if (!stories) {
-			return null;
-		}
+		const {stories} = this.props;
 
 		return (
-			<InlineCss stylesheet={Newsfeed.css()} namespace="Newsfeed">
+			<InlineCss stylesheet={Newsfeed.css()}>
 				<main>
-					{stories.map((story, i) => {
-						return <Story story={story} key={i} />;
+					{stories.map((story, key) => {
+						return <Story story={story} key={key}/>;
 					})}
 				</main>
 				<footer>
@@ -60,28 +62,26 @@ const Newsfeed = React.createClass({
  */
 export default Transmit.createContainer(Newsfeed, {
 	queryParams: {
-		count: 50,
-		page: 1
+		nextStoryId: 1
 	},
 	queries: {
-		stories (queryParams, prevProps) {
-			const url = `https://api.github.com/repos/RickWong/react-transmit/stargazers?per_page=${queryParams.count}&page=${queryParams.page}`;
-
-			return fetch(url).then((response) => {
-				return response.json();
-			}).then((stargazers) => {
-				let promises = [];
-
-				if (prevProps.stories) {
-					promises = prevProps.stories.map((story) => Promise.resolve(story));
-				}
-
-				return Promise.all(promises.concat(
-					stargazers.map((stargazer) => {
-						return Story.getQuery("story", {stargazer});
-					})
-				));
-			});
+		stories (queryParams, prevStories = []) {
+			/**
+			 * All Transmit queries must return a promise.
+			 */
+			return Promise.all(
+				prevStories.map(
+					/**
+					 * Turn previous stories into promises so they persist.
+ 					 */
+					(prevStory) => Promise.resolve(prevStory)
+				).concat(
+					/**
+					 *  Add new story as promise.
+					 */
+					[Story.getQuery("story", {storyId: queryParams.nextStoryId})]
+				)
+			);
 		}
 	}
 });
