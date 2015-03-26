@@ -6,26 +6,6 @@ import Transmit from "lib/react-transmit";
  * @class Like
  */
 const Like = React.createClass({
-	statics: {
-		css: () => `
-			& {
-				padding: 2px 12px;
-				float: left;
-				width: 50%;
-				font-size: 12px;
-			}
-			& img {
-				float: left;
-				border: 1px solid #e1e1e1;
-				margin-right: 6px;
-				width: 20px;
-				height: 20px;
-			}
-			& h4 {
-				display: inline-block;
-				margin: 4px 0;
-			}`
-	},
 	render () {
 		/**
 		 * This is a Transmit prop.
@@ -33,11 +13,11 @@ const Like = React.createClass({
 		const {user} = this.props;
 
 		return (
-			<InlineCss stylesheet={Like.css()} wrapper="li">
+			<li>
 				<img src={user.profile_picture.uri}/>
 				<h4><a href={user.uri} target="_blank">{user.name}</a></h4>
 				<span> likes this.</span>
-			</InlineCss>
+			</li>
 		);
 	}
 });

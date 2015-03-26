@@ -47,7 +47,29 @@ const Story = React.createClass({
 				border-width: 0 1px 1px;
 				background: #f6f7f8;
 				float: left;
+				width: 100%;
 				border-radius: 0 0 3px 3px;
+			}
+			& > ul li {
+				padding: 2px 12px;
+				float: left;
+				width: 50%;
+				font-size: 12px;
+			}
+			& > ul img {
+				float: left;
+				border: 1px solid #e1e1e1;
+				margin-right: 6px;
+				width: 20px;
+				height: 20px;
+			}
+			& > ul h4 {
+				display: inline-block;
+				margin: 4px 0;
+			}
+			& > hr {
+				border: none;
+				clear: both;
 			}`
 	},
 	render () {

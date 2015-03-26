@@ -7,7 +7,7 @@ import Newsfeed from "example/Newsfeed";
  *
  * @class Main
  */
-export default React.createClass({
+const Main = React.createClass({
 	statics: {
 		/**
 		 * Style this example app like Facebook.
@@ -27,10 +27,6 @@ export default React.createClass({
 			a:hover {
 				text-decoration: underline;
 			}
-			hr {
-				border: none;
-				clear: both;
-			}
 			& .github {
 				position: fixed;
 				top: 0;
@@ -42,12 +38,14 @@ export default React.createClass({
 		const repositoryUrl = "https://github.com/RickWong/react-transmit";
 
 		return (
-			<InlineCss stylesheet={this.constructor.css()} namespace="Main">
+			<InlineCss stylesheet={Main.css()} namespace="Main">
 				<a className="github" href={repositoryUrl}>
 					<img src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub"/>
 				</a>
-				<Newsfeed repositoryUrl={repositoryUrl}/>
+				<Newsfeed {...{repositoryUrl}} />
 			</InlineCss>
 		);
 	}
 });
+
+export default Main;

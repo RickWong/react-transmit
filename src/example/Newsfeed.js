@@ -38,12 +38,12 @@ const Newsfeed = React.createClass({
 		/**
 		 * This is a Transmit prop.
 		 */
-		const {stories} = this.props;
+		const {newsfeed} = this.props;
 
 		return (
 			<InlineCss stylesheet={Newsfeed.css()}>
 				<main>
-					{stories.map((story, key) => {
+					{newsfeed.map((story, key) => {
 						return <Story story={story} key={key}/>;
 					})}
 				</main>
@@ -65,7 +65,7 @@ export default Transmit.createContainer(Newsfeed, {
 		nextStoryId: 1
 	},
 	queries: {
-		stories (queryParams, prevStories = []) {
+		newsfeed (queryParams, prevStories = []) {
 			/**
 			 * All Transmit queries must return a promise.
 			 */

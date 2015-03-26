@@ -1,7 +1,7 @@
 {
   "name": "react-transmit",
   "description": "Relay-inspired library based on Promises instead of GraphQL.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "license": "BSD-3",
   "repository": {
     "type": "git",
