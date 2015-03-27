@@ -8,6 +8,13 @@ Relay-inspired library based on Promises instead of GraphQL.
 
 Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.io/react/blog/2015/03/19/building-the-facebook-news-feed-with-relay.html) (React blog)
 
+## Features
+
+- Official Relay-inspired API and syntax.
+- Write declarative queries right in components as Promises.
+- Isomorphic architecture supports server-side rendering.
+- Works with React 0.12 and 0.13.
+
 ## Installation
 
 	npm install react-transmit
@@ -25,7 +32,7 @@ export default Transmit.createContainer(Newsfeed, {
 		count: 10
 	},
 	queries: {
-		stories (queryParams, prevProps) {
+		stories (queryParams) {
 			// All Transmit queries return a Promise.
 			return Promise.all([
 				Story.getQuery("story")

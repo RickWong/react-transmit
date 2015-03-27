@@ -28,6 +28,7 @@ const Newsfeed = React.createClass({
 	},
 	onLoadMore () {
 		this.props.setQueryParams({
+			prevStories: this.props.stories,
 			nextStoryId: this.props.queryParams.nextStoryId + 1
 		});
 	},
@@ -38,12 +39,12 @@ const Newsfeed = React.createClass({
 		/**
 		 * This is a Transmit prop.
 		 */
-		const {newsfeed} = this.props;
+		const {stories} = this.props;
 
 		return (
 			<InlineCss stylesheet={Newsfeed.css()}>
 				<main>
-					{newsfeed.map((story, key) => {
+					{stories.map((story, key) => {
 						return <Story story={story} key={key}/>;
 					})}
 				</main>
@@ -62,26 +63,18 @@ const Newsfeed = React.createClass({
  */
 export default Transmit.createContainer(Newsfeed, {
 	queryParams: {
+		prevStories: [],
 		nextStoryId: 1
 	},
 	queries: {
-		newsfeed (queryParams, prevStories = []) {
+		stories (queryParams) {
 			/**
 			 * All Transmit queries must return a promise.
 			 */
-			return Promise.all(
-				prevStories.map(
-					/**
-					 * Turn previous stories into promises so they persist.
- 					 */
-					(prevStory) => Promise.resolve(prevStory)
-				).concat(
-					/**
-					 *  Add new story as promise.
-					 */
-					[Story.getQuery("story", {storyId: queryParams.nextStoryId})]
-				)
-			);
+			return Story.getQuery("story", {storyId: queryParams.nextStoryId}).
+				then((nextStory) => {
+					return queryParams.prevStories.concat([nextStory]);
+				});
 		}
 	}
 });
