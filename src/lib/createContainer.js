@@ -21,13 +21,36 @@ module.exports = function (Component, options) {
 		statics: {
 			queryParams: options.queryParams || {},
 			queries: options.queries || {},
-			getQuery: function (queryName, nextParams) {
+			getQuery: function (queryName, queryParams) {
 				if (!Container.queries[queryName]) {
 					throw new Error(Component.displayName + " has no '" + queryName +"' query")
 				}
 
-				nextParams = nextParams || assign({}, Container.queryParams);
-				return Container.queries[queryName](nextParams);
+				queryParams = assign({}, Container.queryParams, queryParams || {});
+				return Container.queries[queryName](queryParams);
+			},
+			getAllQueries: function (queryParams) {
+				var promises = [];
+
+				Object.keys(Container.queries).forEach(function (queryName) {
+					var promise = Container.getQuery(queryName, queryParams).
+						then(function (promisedValue) {
+							var promisedQuery = {};
+							promisedQuery[queryName] = promisedValue;
+
+							return promisedQuery;
+						}).catch(function (error) {
+							throw error;
+						});
+
+					promises.push(promise);
+				});
+
+				if (!promises.length) {
+					promises.push(Promise.resolve(true));
+				}
+
+				return Promise.all(promises);
 			}
 		},
 		componentWillMount: function () {
@@ -45,53 +68,40 @@ module.exports = function (Component, options) {
 			setTimeout(function () {
 				var state     = _this.state || {};
 				var props     = _this.props || {};
-				var promises  = [];
 
 				assign(_this.currentParams, nextParams);
 
-				Object.keys(Container.queries).forEach(function (queryName) {
-					var promise = Container.getQuery(queryName, _this.currentParams);
+				Container.getAllQueries(_this.currentParams).
+					then(function (promisedQueries) {
+						var queryResults = {};
 
-					promises.push(promise.then(function (promisedValue) {
-						var promisedQuery = {};
-						promisedQuery[queryName] = promisedValue;
-						return promisedQuery;
-					}).catch(function (error) {
-						throw error;
-					}));
-				});
+						promisedQueries.forEach(function (promisedQuery) {
+							if (typeof promisedQuery === "object") {
+								assign(queryResults, promisedQuery);
+							}
+						});
 
-				if (!promises.length) {
-					promises.push(Promise.resolve(true));
-				}
+						try {
+							_this.setState(queryResults);
+						}
+						catch (error) {
+							// Call to setState may fail if renderToString() was used.
+						}
 
-				Promise.all(promises).then(function (promisedQueries) {
-					var queryResults = {};
+						if (props.onQueryComplete) {
+							props.onQueryComplete.call(_this, null, queryResults);
+						}
 
-					promisedQueries.forEach(function (promisedQuery) {
-						if (typeof promisedQuery === "object") {
-							assign(queryResults, promisedQuery);
+						return queryResults;
+					}).
+					catch(function (error) {
+						if (props.onQueryComplete) {
+							props.onQueryComplete.call(_this, error, {});
+						}
+						else {
+							throw error;
 						}
 					});
-
-					try {
-						_this.setState(queryResults);
-					}
-					catch (error) {
-						// Call to setState may fail if renderToString() was used.
-					}
-
-					if (props.onQueryComplete) {
-						props.onQueryComplete.call(_this, null, queryResults);
-					}
-				}).catch(function (error) {
-					if (props.onQueryComplete) {
-						props.onQueryComplete.call(_this, error, {});
-					}
-					else {
-						throw error;
-					}
-				});
 			}, 0);
 		},
 		/**
