@@ -120,7 +120,6 @@ export default Transmit.createContainer(Story, {
 			 * All Transmit queries must return a promise.
 			 */
 			return fetch(likesUrl).
-				then((response) => response.json()).
 				then((response) => {
 					if (!response.ok) {
 						throw new Error(response.statusText);
