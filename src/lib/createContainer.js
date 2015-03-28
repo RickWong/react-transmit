@@ -50,7 +50,18 @@ module.exports = function (Component, options) {
 					promises.push(Promise.resolve(true));
 				}
 
-				return Promise.all(promises);
+				return Promise.all(promises).
+					then(function (promisedQueries) {
+						var queryResults = {};
+
+						promisedQueries.forEach(function (promisedQuery) {
+							if (typeof promisedQuery === "object") {
+								assign(queryResults, promisedQuery);
+							}
+						});
+
+						return queryResults;
+					});
 			}
 		},
 		componentWillMount: function () {
@@ -72,15 +83,7 @@ module.exports = function (Component, options) {
 				assign(_this.currentParams, nextParams);
 
 				Container.getAllQueries(_this.currentParams).
-					then(function (promisedQueries) {
-						var queryResults = {};
-
-						promisedQueries.forEach(function (promisedQuery) {
-							if (typeof promisedQuery === "object") {
-								assign(queryResults, promisedQuery);
-							}
-						});
-
+					then(function (queryResults) {
 						try {
 							_this.setState(queryResults);
 						}
