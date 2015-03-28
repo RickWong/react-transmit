@@ -10,16 +10,15 @@ var assign = React.__spread;
  * @function renderToString
  */
 module.exports = function (Component, props, callbackFn) {
-	var setQueryParamsCallback = function (errors, queryResults) {
-		if (errors) {
-			throw errors;
+	var onQueryComplete = function (error, queryResults) {
+		if (error) {
+			return callbackFn(error);
 		}
 
-		var myProps = assign({}, props, queryResults || {}, {
-			setQueryParamsCallback: function () {}
-		});
+		var myProps = assign({}, props, queryResults);
 
 		callbackFn(
+			null,
 			React.renderToString(
 				React.createElement(Component, myProps)
 			),
@@ -28,7 +27,7 @@ module.exports = function (Component, props, callbackFn) {
 	};
 
 	var myProps = assign({}, props, {
-		setQueryParamsCallback: setQueryParamsCallback
+		onQueryComplete: onQueryComplete
 	});
 
 	React.renderToString(React.createElement(Component, myProps));

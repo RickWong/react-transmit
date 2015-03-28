@@ -14,6 +14,10 @@ module.exports = function (Component, options) {
 
 	var Container = React.createClass({
 		displayName: Component.displayName + "Container",
+		propTypes: {
+			queryParams: React.PropTypes.object,
+			onQueryComplete: React.PropTypes.func
+		},
 		statics: {
 			queryParams: options.queryParams || {},
 			queries: options.queries || {},
@@ -27,16 +31,15 @@ module.exports = function (Component, options) {
 			}
 		},
 		componentWillMount: function () {
-			var setQueryParamsCallback = this.props && this.props.setQueryParamsCallback;
 			var externalQueryParams = this.props && this.props.queryParams || {};
 
 			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
 
 			if (!this.hasQueryResults()) {
-				this.setQueryParams({}, setQueryParamsCallback);
+				this.setQueryParams({});
 			}
 		},
-		setQueryParams: function (nextParams, callbackFn) {
+		setQueryParams: function (nextParams) {
 			var _this = this;
 
 			setTimeout(function () {
@@ -44,42 +47,50 @@ module.exports = function (Component, options) {
 				var props     = _this.props || {};
 				var promises  = [];
 
-				if (!callbackFn) {
-					callbackFn = function (errors, queryResults) {
-						if (errors) {
-							throw errors;
-						}
-
-						_this.setState(queryResults);
-					};
-				}
-
 				assign(_this.currentParams, nextParams);
 
-				for (var queryName in Container.queries) {
+				Object.keys(Container.queries).forEach(function (queryName) {
 					var promise = Container.getQuery(queryName, _this.currentParams);
 
 					promises.push(promise.then(function (promisedValue) {
 						var promisedQuery = {};
 						promisedQuery[queryName] = promisedValue;
 						return promisedQuery;
+					}).catch(function (error) {
+						throw error;
 					}));
-				}
+				});
 
 				if (!promises.length) {
-					return callbackFn(null, {});
+					promises.push(Promise.resolve(true));
 				}
 
 				Promise.all(promises).then(function (promisedQueries) {
 					var queryResults = {};
 
 					promisedQueries.forEach(function (promisedQuery) {
-						assign(queryResults, promisedQuery);
+						if (typeof promisedQuery === "object") {
+							assign(queryResults, promisedQuery);
+						}
 					});
 
-					callbackFn(null, queryResults);
-				}).catch(function (errors) {
-					callbackFn(errors, null);
+					try {
+						_this.setState(queryResults);
+					}
+					catch (error) {
+						// Call to setState may fail if renderToString() was used.
+					}
+
+					if (props.onQueryComplete) {
+						props.onQueryComplete.call(_this, null, queryResults);
+					}
+				}).catch(function (error) {
+					if (props.onQueryComplete) {
+						props.onQueryComplete.call(_this, error, {});
+					}
+					else {
+						throw error;
+					}
 				});
 			}, 0);
 		},

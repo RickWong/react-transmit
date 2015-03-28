@@ -121,20 +121,25 @@ export default Transmit.createContainer(Story, {
 			 */
 			return fetch(likesUrl).
 				then((response) => response.json()).
+				then((response) => {
+					if (!response.ok) {
+						throw new Error(response.statusText);
+					}
+
+					return response.json();
+				}).
 				then((likes) => Promise.all(
 					likes.map((user) => Like.getQuery("user", {user}))
 				)).
-				then((resolvedLikes) => {
+				then((resolvedLikes) => ({
 					/**
 					 * Just the same story everytime but with different likes :)
 					 */
-					return {
-						title: "React Transmit",
-						text: "Relay-inspired library based on Promises instead of GraphQL.",
-						url: "https://github.com/RickWong/react-transmit",
-						likes: resolvedLikes
-					};
-				});
+					title: "React Transmit",
+					text: "Relay-inspired library based on Promises instead of GraphQL.",
+					url: "https://github.com/RickWong/react-transmit",
+					likes: resolvedLikes
+				}));
 		}
 	}
 });
