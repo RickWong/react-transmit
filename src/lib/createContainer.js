@@ -27,7 +27,7 @@ module.exports = function (Component, options) {
 					throw new Error(Component.displayName + " has no '" + queryName +"' query")
 				}
 
-				queryParams = assign({}, Container.queryParams, queryParams || {});
+				queryParams = queryParams || assign({}, Container.queryParams);
 				return Container.queries[queryName](queryParams);
 			},
 			getAllQueries: function (queryParams) {
