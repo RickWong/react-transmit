@@ -3,7 +3,7 @@
  */
 "use strict";
 
-var React  = require("react");
+var React  = require("./react");
 var assign = React.__spread;
 
 /**
@@ -50,18 +50,19 @@ module.exports = function (Component, options) {
 					promises.push(Promise.resolve(true));
 				}
 
-				return Promise.all(promises).
-					then(function (promisedQueries) {
-						var queryResults = {};
+				return Promise.all(
+					promises
+				).then(function (promisedQueries) {
+					var queryResults = {};
 
-						promisedQueries.forEach(function (promisedQuery) {
-							if (typeof promisedQuery === "object") {
-								assign(queryResults, promisedQuery);
-							}
-						});
-
-						return queryResults;
+					promisedQueries.forEach(function (promisedQuery) {
+						if (typeof promisedQuery === "object") {
+							assign(queryResults, promisedQuery);
+						}
 					});
+
+					return queryResults;
+				});
 			}
 		},
 		componentWillMount: function () {
@@ -77,34 +78,35 @@ module.exports = function (Component, options) {
 			var _this = this;
 
 			setTimeout(function () {
-				var state     = _this.state || {};
-				var props     = _this.props || {};
+				var state = _this.state || {};
+				var props = _this.props || {};
 
 				assign(_this.currentParams, nextParams);
 
-				Container.getAllQueries(_this.currentParams).
-					then(function (queryResults) {
-						try {
-							_this.setState(queryResults);
-						}
-						catch (error) {
-							// Call to setState may fail if renderToString() was used.
-						}
-
-						if (props.onQueryComplete) {
-							props.onQueryComplete.call(_this, null, queryResults);
-						}
-
-						return queryResults;
-					}).
-					catch(function (error) {
-						if (props.onQueryComplete) {
-							props.onQueryComplete.call(_this, error, {});
-						}
-						else {
+				Container.getAllQueries(_this.currentParams).then(function (queryResults) {
+					try {
+						_this.setState(queryResults);
+					}
+					catch (error) {
+						// Call to setState may fail if renderToString() was used.
+						if (!error.message || !error.message.match(/^document/)) {
 							throw error;
 						}
-					});
+					}
+
+					if (props.onQueryComplete) {
+						props.onQueryComplete.call(_this, null, queryResults);
+					}
+
+					return queryResults;
+				}).catch(function (error) {
+					if (props.onQueryComplete) {
+						props.onQueryComplete.call(_this, error, {});
+					}
+					else {
+						throw error;
+					}
+				});
 			}, 0);
 		},
 		/**
@@ -143,7 +145,7 @@ module.exports = function (Component, options) {
 
 			// Query results must be guaranteed to render.
 			if (!this.hasQueryResults()) {
-				return null;
+				return props.emptyView || null;
 			}
 
 			return React.createElement(

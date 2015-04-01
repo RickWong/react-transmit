@@ -3,7 +3,7 @@
  */
 "use strict";
 
-var React = require("react");
+var React  = require("./react");
 var assign = React.__spread;
 
 /**
