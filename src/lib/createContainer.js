@@ -75,16 +75,31 @@ module.exports = function (Component, options) {
 				this.setQueryParams({});
 			}
 		},
-		setQueryParams: function (nextParams) {
+		setQueryParams: function (nextParams, optionalQueryName) {
 			var _this = this;
 
 			setTimeout(function () {
 				var state = _this.state || {};
 				var props = _this.props || {};
+				var promise;
 
 				assign(_this.currentParams, nextParams);
 
-				Container.getAllQueries(_this.currentParams).then(function (queryResults) {
+				if (optionalQueryName) {
+					promise = Container.getQuery(
+						optionalQueryName, _this.currentParams
+					).then(function (queryResult) {
+						var queryResults = {};
+						queryResults[optionalQueryName] = queryResult;
+
+						return queryResults;
+					});
+				}
+				else {
+					promise = Container.getAllQueries(_this.currentParams);
+				}
+
+				promise.then(function (queryResults) {
 					try {
 						_this.setState(queryResults);
 					}
