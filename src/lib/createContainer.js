@@ -16,7 +16,8 @@ module.exports = function (Component, options) {
 		displayName: Component.displayName + "Container",
 		propTypes: {
 			queryParams: React.PropTypes.object,
-			onQueryComplete: React.PropTypes.func
+			onQueryComplete: React.PropTypes.func,
+			emptyView: React.PropTypes.element
 		},
 		statics: {
 			queryParams: options.queryParams || {},
