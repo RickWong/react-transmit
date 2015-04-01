@@ -26,6 +26,9 @@ module.exports = {
 		]
 	},
 	resolve: {
+		alias: {
+			"react-native": "react"
+		},
 		modulesDirectories: [
 			"src",
 			"node_modules",

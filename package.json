@@ -1,18 +1,19 @@
 {
-  "name": "react-transmit",
+  "name": "react-transmit-native",
   "description": "Relay-inspired library based on Promises instead of GraphQL.",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "license": "BSD-3",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RickWong/react-transmit.git"
+    "url": "https://github.com/RickWong/react-transmit.git#master-native"
   },
-  "homepage": "https://github.com/RickWong/react-transmit",
+  "homepage": "https://github.com/RickWong/react-transmit/tree/master-native",
   "keywords": [
     "react",
     "transmit",
     "relay",
-    "react-component"
+    "react-component",
+    "native"
   ],
   "main": "src/lib/react-transmit.js",
   "scripts": {
@@ -22,7 +23,7 @@
     "watch": "concurrent --kill-others 'npm run watch-client' 'npm run localhost'"
   },
   "dependencies": {
-    "react": ">= 0.12.0",
+    "react-native": ">= 0.3.0",
     "ascii-json": "0.2.0"
   },
   "devDependencies": {

@@ -13,11 +13,13 @@ Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.
 - Official Relay-inspired API and syntax.
 - Write declarative queries right in components as Promises.
 - Isomorphic architecture supports server-side rendering.
-- Works with React 0.12 and 0.13.
+- Works with React 0.12 and 0.13, and React Native!
 
 ## Installation
 
 	npm install react-transmit
+	# or
+	npm install react-transmit-native
 
 ## Usage
 

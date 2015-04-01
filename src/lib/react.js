@@ -3,4 +3,13 @@
  */
 "use strict";
 
-module.exports = require("react");
+var React;
+
+try {
+	React = eval("require").call(this, "react");
+}
+catch (error) {
+	React = require("react-native");
+}
+
+module.exports = React;
