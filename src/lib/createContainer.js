@@ -27,22 +27,23 @@ module.exports = function (Component, options) {
 					throw new Error(Component.displayName + " has no '" + queryName +"' query")
 				}
 
-				queryParams = queryParams || assign({}, Container.queryParams);
+				queryParams = queryParams || {};
+				assign(queryParams, Container.queryParams, assign({}, queryParams));
+
 				return Container.queries[queryName](queryParams);
 			},
 			getAllQueries: function (queryParams) {
 				var promises = [];
 
 				Object.keys(Container.queries).forEach(function (queryName) {
-					var promise = Container.getQuery(queryName, queryParams).
-						then(function (promisedValue) {
-							var promisedQuery = {};
-							promisedQuery[queryName] = promisedValue;
+					var promise = Container.getQuery(
+						queryName, queryParams
+					).then(function (queryResult) {
+						var queryResults = {};
+						queryResults[queryName] = queryResult;
 
-							return promisedQuery;
-						}).catch(function (error) {
-							throw error;
-						});
+						return queryResults;
+					});
 
 					promises.push(promise);
 				});
@@ -78,7 +79,7 @@ module.exports = function (Component, options) {
 		setQueryParams: function (nextParams, optionalQueryName) {
 			var _this = this;
 
-			setTimeout(function () {
+			return new Promise(function (resolve, reject) {
 				var state = _this.state || {};
 				var props = _this.props || {};
 				var promise;
@@ -114,16 +115,15 @@ module.exports = function (Component, options) {
 						props.onQueryComplete.call(_this, null, queryResults);
 					}
 
-					return queryResults;
+					resolve(queryResults);
 				}).catch(function (error) {
 					if (props.onQueryComplete) {
 						props.onQueryComplete.call(_this, error, {});
 					}
-					else {
-						throw error;
-					}
+
+					reject(error);
 				});
-			}, 0);
+			});
 		},
 		/**
 		 * @returns {boolean} true if all queries have results.
