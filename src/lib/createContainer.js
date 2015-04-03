@@ -16,7 +16,7 @@ module.exports = function (Component, options) {
 		displayName: Component.displayName + "Container",
 		propTypes: {
 			queryParams: React.PropTypes.object,
-			onQueryComplete: React.PropTypes.func,
+			onQuery: React.PropTypes.func,
 			emptyView: React.PropTypes.element
 		},
 		statics: {
@@ -73,7 +73,11 @@ module.exports = function (Component, options) {
 			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
 
 			if (!this.hasQueryResults()) {
-				this.setQueryParams({});
+				var promise = this.setQueryParams({});
+
+				if (this.props.onQuery) {
+					this.props.onQuery.call(this, promise);
+				}
 			}
 		},
 		setQueryParams: function (nextParams, optionalQueryName) {
@@ -111,18 +115,10 @@ module.exports = function (Component, options) {
 						}
 					}
 
-					if (props.onQueryComplete) {
-						props.onQueryComplete.call(_this, null, queryResults);
-					}
-
-					resolve(queryResults);
-				}).catch(function (error) {
-					if (props.onQueryComplete) {
-						props.onQueryComplete.call(_this, error, {});
-					}
-
-					reject(error);
+					return queryResults;
 				});
+
+				resolve(promise);
 			});
 		},
 		/**
@@ -156,7 +152,8 @@ module.exports = function (Component, options) {
 			var props     = this.props || {};
 			var utilProps = {
 				queryParams: this.currentParams,
-				setQueryParams: this.setQueryParams
+				setQueryParams: this.setQueryParams,
+				onQuery: undefined
 			};
 
 			// Query results must be guaranteed to render.
