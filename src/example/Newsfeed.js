@@ -30,16 +30,14 @@ const Newsfeed = React.createClass({
 		this.props.setQueryParams({
 			prevStories: this.props.stories,
 			nextStoryId: this.props.queryParams.nextStoryId + 1
+		}).then((queryResults) => {
+			console.log("Newsfeed.setQueryParams: ", queryResults);
+		}).catch((error) => {
+			throw error;
 		});
 	},
 	render () {
-		// This is a normal prop.
-		const {repositoryUrl} = this.props;
-
-		/**
-		 * This is a Transmit prop.
-		 */
-		const {stories} = this.props;
+		const {stories, repositoryUrl} = this.props;
 
 		return (
 			<InlineCss stylesheet={Newsfeed.css()}>

@@ -13,21 +13,21 @@ module.exports = function (Component, props) {
 	props = props || {};
 
 	return new Promise(function (resolve, reject) {
-		var onQueryComplete = function (error, queryResults) {
-			if (error) {
-				return reject(error);
-			}
+		var onQuery = function (promise) {
+			promise.then(function (queryResults) {
+				var myProps     = assign({}, props, queryResults);
+				var reactString = React.renderToString(React.createElement(Component, myProps));
 
-			var myProps     = assign({}, props, queryResults);
-			var reactString = React.renderToString(React.createElement(Component, myProps));
-
-			resolve({
-				reactString: reactString,
-				reactData: queryResults
+				resolve({
+					reactString: reactString,
+					reactData: queryResults
+				});
+			}).catch(function (error) {
+				reject(error);
 			});
 		};
 
-		var myProps = assign({}, props, {onQueryComplete: onQueryComplete});
+		var myProps = assign({}, props, {onQuery: onQuery});
 		React.renderToString(React.createElement(Component, myProps));
 	});
 };
