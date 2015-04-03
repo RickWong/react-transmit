@@ -9,26 +9,25 @@ var assign = React.__spread;
 /**
  * @function renderToString
  */
-module.exports = function (Component, props, callbackFn) {
-	var onQueryComplete = function (error, queryResults) {
-		if (error) {
-			return callbackFn(error);
-		}
+module.exports = function (Component, props) {
+	props = props || {};
 
-		var myProps = assign({}, props, queryResults);
+	return new Promise(function (resolve, reject) {
+		var onQueryComplete = function (error, queryResults) {
+			if (error) {
+				return reject(error);
+			}
 
-		callbackFn(
-			null,
-			React.renderToString(
-				React.createElement(Component, myProps)
-			),
-			queryResults
-		);
-	};
+			var myProps     = assign({}, props, queryResults);
+			var reactString = React.renderToString(React.createElement(Component, myProps));
 
-	var myProps = assign({}, props, {
-		onQueryComplete: onQueryComplete
+			resolve({
+				reactString: reactString,
+				reactData: queryResults
+			});
+		};
+
+		var myProps = assign({}, props, {onQueryComplete: onQueryComplete});
+		React.renderToString(React.createElement(Component, myProps));
 	});
-
-	React.renderToString(React.createElement(Component, myProps));
 };

@@ -71,10 +71,11 @@ export default Transmit.createContainer(Newsfeed, {
 			/**
 			 * All Transmit queries must return a promise.
 			 */
-			return Story.getQuery("story", {storyId: queryParams.nextStoryId}).
-				then((nextStory) => {
-					return queryParams.prevStories.concat([nextStory]);
-				});
+			return Story.getQuery(
+				"story", {storyId: queryParams.nextStoryId}
+			).then((nextStory) => {
+				return queryParams.prevStories.concat([nextStory]);
+			});
 		}
 	}
 });

@@ -33,25 +33,13 @@ const Main = React.createClass({
 				border: 0;
 			}`
 	},
-	onQueryComplete (error, queryResults) {
-		if (error) {
-			throw error;
-		}
-
-		console.log("Main.onQueryComplete: ", queryResults);
-	},
 	render () {
 		const repositoryUrl = "https://github.com/RickWong/react-transmit";
 
 		/**
 		 * This is a Transmit prop.
 		 */
-		const {stories} = this.props;
-
-		/**
-		 * This is an optional callback to capture the query results.
-		 */
-		const {onQueryComplete} = this;
+		const {stories, onQueryComplete} = this.props;
 
 		return (
 			<InlineCss stylesheet={Main.css()} namespace="Main">
