@@ -17,6 +17,9 @@ const Main = React.createClass({
 			</InlineCss>
 		);
 	},
+	/**
+	 * This part is optional. It allows you to capture the query results.
+	 */
 	onQuery (promise) {
 		promise.then((queryResults) => {
 			console.log("Main.onQuery: ", queryResults);

@@ -38,7 +38,7 @@ const Story = React.createClass({
 });
 
 /**
- *  Higher-Order Transmit component that will contain the above React component.
+ *  Higher-order Transmit component that will contain the above React component.
  */
 export default Transmit.createContainer(Story, {
 	/**

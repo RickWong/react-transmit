@@ -73,17 +73,13 @@ module.exports = function (Component, options) {
 			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
 
 			if (!this.hasQueryResults()) {
-				var promise = this.setQueryParams({});
-
-				if (this.props.onQuery) {
-					this.props.onQuery.call(this, promise);
-				}
+				this.setQueryParams({});
 			}
 		},
 		setQueryParams: function (nextParams, optionalQueryName) {
 			var _this = this;
 
-			return new Promise(function (resolve, reject) {
+			var promise = new Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
 
@@ -119,6 +115,12 @@ module.exports = function (Component, options) {
 
 				resolve(promise);
 			});
+
+			if (this.props.onQuery) {
+				this.props.onQuery.call(this, promise);
+			}
+
+			return promise;
 		},
 		/**
 		 * @returns {boolean} true if all queries have results.
