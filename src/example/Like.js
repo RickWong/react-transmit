@@ -8,14 +8,14 @@ import Transmit from "lib/react-transmit";
 const Like = React.createClass({
 	render () {
 		/**
-		 * This is a Transmit prop.
+		 * Transmitted prop is guaranteed.
 		 */
-		const {user} = this.props;
+		const like = this.props.like;
 
 		return (
 			<li>
-				<img src={user.profile_picture.uri}/>
-				<h4><a href={user.uri} target="_blank">{user.name}</a></h4>
+				<img src={like.profile_picture.uri}/>
+				<h4><a href={like.uri} target="_blank">{like.name}</a></h4>
 				<span> likes this.</span>
 			</li>
 		);
@@ -23,21 +23,24 @@ const Like = React.createClass({
 });
 
 /**
- * Like Relay, export a Transmit container instead of the React component.
+ *  Higher-Order Transmit component that will contain the above React component.
  */
 export default Transmit.createContainer(Like, {
+	/**
+	 * Default query params.
+	 */
 	queryParams: {
 		user: null
 	},
 	queries: {
-		user (queryParams) {
+		/**
+		 * The "like" query maps a stargazer into a like.
+		 */
+		like (queryParams) {
 			if (!queryParams.user) {
 				throw new Error("queryParams.user required");
 			}
 
-			/**
-			 * All Transmit queries must return a promise.
-			 */
 			return Promise.resolve({
 				name: queryParams.user.login,
 				uri: queryParams.user.html_url,

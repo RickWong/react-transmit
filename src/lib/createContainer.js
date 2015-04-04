@@ -16,13 +16,13 @@ module.exports = function (Component, options) {
 		displayName: Component.displayName + "Container",
 		propTypes: {
 			queryParams: React.PropTypes.object,
-			onQuery: React.PropTypes.func,
-			emptyView: React.PropTypes.element
+			onQuery:     React.PropTypes.func,
+			emptyView:   React.PropTypes.element
 		},
 		statics: {
 			queryParams: options.queryParams || {},
-			queries: options.queries || {},
-			getQuery: function (queryName, queryParams) {
+			queries:     options.queries || {},
+			getQuery:    function (queryName, queryParams) {
 				if (!Container.queries[queryName]) {
 					throw new Error(Component.displayName + " has no '" + queryName +"' query")
 				}
@@ -84,7 +84,6 @@ module.exports = function (Component, options) {
 			var _this = this;
 
 			return new Promise(function (resolve, reject) {
-				var state = _this.state || {};
 				var props = _this.props || {};
 				var promise;
 
@@ -151,9 +150,9 @@ module.exports = function (Component, options) {
 			var state     = this.state || {};
 			var props     = this.props || {};
 			var utilProps = {
-				queryParams: this.currentParams,
+				queryParams:    this.currentParams,
 				setQueryParams: this.setQueryParams,
-				onQuery: undefined
+				onQuery:        undefined
 			};
 
 			// Query results must be guaranteed to render.
