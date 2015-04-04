@@ -10,8 +10,9 @@ Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.
 
 ## Features
 
-- Official Relay-inspired API and syntax.
-- Write declarative queries right in components as Promises.
+- Implements the official Relay API methods.
+- HOC: Higher-order component syntax just like Relay.
+- Write declarative queries as Promises.
 - Isomorphic architecture supports server-side rendering.
 - Works with React 0.12 and 0.13, and React Native!
 
@@ -24,18 +25,23 @@ Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.
 ## Usage
 
 ````js
-import React from "react";
+import React    from "react";
 import Transmit from "react-transmit";
 
-const Newsfeed = React.createClass(...);
+// Simpl React component.
+const Newsfeed = React.createClass({
+	render () {
+		return this.props.stories.map((story) => <li>{story.content}</li>);
+	}
+});
 
+//  Higher-order Transmit component that will contain the above React component.
 export default Transmit.createContainer(Newsfeed, {
 	queryParams: {
 		count: 10
 	},
 	queries: {
 		stories (queryParams) {
-			// All Transmit queries return a Promise.
 			return Promise.all([
 				Story.getQuery("story")
 			]);

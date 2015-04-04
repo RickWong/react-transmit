@@ -16,13 +16,13 @@ module.exports = function (Component, options) {
 		displayName: Component.displayName + "Container",
 		propTypes: {
 			queryParams: React.PropTypes.object,
-			onQuery: React.PropTypes.func,
-			emptyView: React.PropTypes.element
+			onQuery:     React.PropTypes.func,
+			emptyView:   React.PropTypes.element
 		},
 		statics: {
 			queryParams: options.queryParams || {},
-			queries: options.queries || {},
-			getQuery: function (queryName, queryParams) {
+			queries:     options.queries || {},
+			getQuery:    function (queryName, queryParams) {
 				if (!Container.queries[queryName]) {
 					throw new Error(Component.displayName + " has no '" + queryName +"' query")
 				}
@@ -73,18 +73,13 @@ module.exports = function (Component, options) {
 			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
 
 			if (!this.hasQueryResults()) {
-				var promise = this.setQueryParams({});
-
-				if (this.props.onQuery) {
-					this.props.onQuery.call(this, promise);
-				}
+				this.setQueryParams({});
 			}
 		},
 		setQueryParams: function (nextParams, optionalQueryName) {
 			var _this = this;
 
-			return new Promise(function (resolve, reject) {
-				var state = _this.state || {};
+			var promise = new Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
 
@@ -120,6 +115,12 @@ module.exports = function (Component, options) {
 
 				resolve(promise);
 			});
+
+			if (this.props.onQuery) {
+				this.props.onQuery.call(this, promise);
+			}
+
+			return promise;
 		},
 		/**
 		 * @returns {boolean} true if all queries have results.
@@ -151,9 +152,9 @@ module.exports = function (Component, options) {
 			var state     = this.state || {};
 			var props     = this.props || {};
 			var utilProps = {
-				queryParams: this.currentParams,
+				queryParams:    this.currentParams,
 				setQueryParams: this.setQueryParams,
-				onQuery: undefined
+				onQuery:        undefined
 			};
 
 			// Query results must be guaranteed to render.
