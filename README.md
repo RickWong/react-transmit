@@ -11,48 +11,85 @@ Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.
 ## Features
 
 - Implements the official Relay API methods.
-- HOC: Higher-order component syntax just like Relay.
-- Write declarative queries as Promises.
+- Higher-order component (HOC) syntax just like Relay.
+- Declare composable Promise-based queries in HOCs.
 - Isomorphic architecture supports server-side rendering.
 - Works with React 0.12 and 0.13, and React Native!
 
 ## Installation
 
+	# For web or Node:
 	npm install react-transmit
-	# or
+	
+	# For React Native:
 	npm install react-transmit-native
 
 ## Usage
 
+**Newsfeed.js** (read the comments)
+
 ````js
 import React    from "react";
-import Transmit from "react-transmit";
+import Transmit from "react-transmit";  // Import Transmit.
+import Story    from "./Story";
 
-// Simpl React component.
 const Newsfeed = React.createClass({
 	render () {
-		return this.props.stories.map((story) => <li>{story.content}</li>);
+		const stories = this.props.stories;  // Transmit props are guaranteed.
+		
+		return stories.map((story) => <Story story={story} />); // Pass down props.
 	}
 });
 
-//  Higher-order Transmit component that will contain the above React component.
+// Higher-order component that will do queries for the above React component.
 export default Transmit.createContainer(Newsfeed, {
 	queryParams: {
-		count: 10
+		count: 10  // Default query params.
 	},
 	queries: {
+		// Query names become the Transmit prop names. 
 		stories (queryParams) {
+			// This "stories" query returns a Promise composed of 3 other Promises.
 			return Promise.all([
-				Story.getQuery("story")
+				Story.getQuery("story", {storyId: 1}),
+				Story.getQuery("story", {storyId: 2}),
+				Story.getQuery("story", {storyId: 3})
 			]);
 		}
 	}
 });
 ````
+**Story.js** (read the comments)
+
+````js
+import React    from "react";
+import Transmit from "react-transmit";  // Import Transmit.
+
+const Story = React.createClass({
+	render () {
+		const story = this.props.story; // Passed down props.
+		
+		return <p>{story.content}</p>;
+	}
+});
+
+export default Transmit.createContainer(Story, {
+	queries: {
+		// This "story" query returns a Fetch API promise.
+		story (queryParams) {
+			return fetch("https://some.api/stories/" + queryParams.storyId).then(resp => resp.json());
+		}
+	}
+});
+````
+
+## Documentation
+
+See [DOCS.md](https://github.com/RickWong/react-transmit/blob/master/DOCS.md)
 
 ## Community
 
-Let's start one together! After you ★Star this project, follow [@Rygu](https://twitter.com/rygu)
+Let's start one together! After you ★Star this project, follow me [@Rygu](https://twitter.com/rygu)
 on Twitter.
 
 ## License

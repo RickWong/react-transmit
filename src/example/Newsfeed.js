@@ -37,7 +37,7 @@ const Newsfeed = React.createClass({
 			nextStoryId:      this.props.queryParams.nextStoryId + 1
 		}).then((queryResults) => {
 			/**
-			 * This part is optional. It allows you to capture the query results.
+			 * This is optional. It allows this component to capture the Transmit query results.
  			 */
 			console.log("Newsfeed.setQueryParams: ", queryResults);
 		});
@@ -45,7 +45,7 @@ const Newsfeed = React.createClass({
 });
 
 /**
- *  Higher-order Transmit component that will contain the above React component.
+ *  Higher-order component that will do queries for the above React component.
  */
 export default Transmit.createContainer(Newsfeed, {
 	/**

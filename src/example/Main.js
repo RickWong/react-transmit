@@ -18,7 +18,7 @@ const Main = React.createClass({
 		);
 	},
 	/**
-	 * This part is optional. It allows you to capture the query results.
+	 * This is optional. It allows this parent component to capture the Transmit query results.
 	 */
 	onQuery (promise) {
 		promise.then((queryResults) => {
