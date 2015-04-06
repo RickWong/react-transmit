@@ -75,6 +75,9 @@ module.exports = function (Component, options) {
 			if (!this.hasQueryResults()) {
 				this.setQueryParams({});
 			}
+			else if (this.props.onQuery) {
+				this.props.onQuery.call(this, Promise.resolve({}));
+			}
 		},
 		setQueryParams: function (nextParams, optionalQueryName) {
 			var _this = this;
