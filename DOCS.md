@@ -37,10 +37,10 @@ The methods are named after their React / Relay counterparts. Their functionalit
 
 * For isomorphic apps, server-side.
 * If you captured query results on the server with Transmit's `renderToString()` then you can inject that data into the final markup that's sent to the client. Doing this allows Transmit's `render()` on the client to re-use the data. 
-* This method is actually copied from [react-async](https://github.com/andreypopp/react-async) <3. Thanks Andrey Popp!
+* This method is actually copied from [react-async](https://github.com/andreypopp/react-async). Thanks [@andreypopp](https://github.com/andreypopp)!
 * [Example usage](https://github.com/RickWong/react-isomorphic-starterkit/blob/2bf29c747770e79de06e130af325e0bdfb216bc9/src/server.js#L52)
 
-## API: The Higher-order component / Container
+## API: `Transmit.Container` (Higher-order component)
 
 Transmit's `createContainer()` method describes a new React component, a so-called Higher-order component that wraps the original ReactClass. Like any React component you can pass props to it. Below are the Transmit-specific props. Your own props are just passed onto the original ReactClass.
 
@@ -65,7 +65,22 @@ Transmit's `createContainer()` method describes a new React component, a so-call
 * The container will render this while the queries are not yet resolved.
 * Defaults to `null` (React) or `<View />` (React Native).
 
-## API: `this.props`
+### Static Methods
+
+#### `getAllQueries([queryParams]) : Promise `
+
+* Performs all queries and returns a composed Promise.
+* Can be used to resolve a component's queries before rendering the component.
+* [Example usage](https://github.com/RickWong/react-transmit/issues/4#issuecomment-87233975)
+
+#### `getQuery(queryName [, queryParams]) : Promise`
+
+* Performs a single query and returns its Promise.
+* This is useful to compose a parent query that resolves child components' queries.
+* [Example usage](https://github.com/RickWong/react-transmit/blob/master/src/example/Newsfeed.js#L65-L69)
+
+
+## API: Original ReactClass' `this.props`
 
 Transmit exposes a complemental API to the contained ReactClass via its `this.props` in the same way Relay does. Don't worry, your own props are also accessible via `this.props`.
 
