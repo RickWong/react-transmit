@@ -12,7 +12,7 @@ var Transmit = require("react-transmit");  // Still using require() aye?
 
 The methods are named after their React / Relay counterparts. Their functionality is mostly the same, but their arguments and/or return types might differ slightly.
 
-#### `createContainer(ReactClass, options : {}) : ReactClass`
+#### `createContainer(ReactClass, options) : ReactClass`
 
 * Creates a container that wraps the original ReactClass.
 * The container performs queries and passes query results as props to the original ReactClass. 
@@ -48,8 +48,7 @@ Transmit's `createContainer()` method describes a new React component, a so-call
 
 #### `onQuery(Promise) : function`
 
-* Optional. 
-* Pass this callback function to accept a Promise to the query results.
+* Optional. Pass this callback function to accept a Promise to the query results.
 * Don't use this to call `setState()`. That's not necessary. Only use it for caching or logging the query results.
 * Tip: catch errors by defining a `.catch()` handler on the accepted Promise.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Main.js#L16)
@@ -61,15 +60,15 @@ Transmit's `createContainer()` method describes a new React component, a so-call
 
 #### `emptyView : ReactElement`
 
-* Optional. 
-* The container will render this while the queries are not yet resolved.
+* Optional. The container will render this while the queries are not yet resolved.
 * Defaults to `null` (React) or `<View />` (React Native).
 
 ### Static Methods
 
-#### `getAllQueries([queryParams]) : Promise `
+#### `getAllQueries([queryParams [, queryName|queryNames]]) : Promise `
 
 * Performs all queries and returns a composed Promise.
+* Optionally specify a string or string-array to only perform a specific query/queries.
 * Can be used to resolve a component's queries before rendering the component.
 * [Example usage](https://github.com/RickWong/react-transmit/issues/4#issuecomment-87233975)
 
@@ -100,10 +99,10 @@ Transmit exposes a complemental API to the contained ReactClass via its `this.pr
 
 ### Methods
 
-#### `setQueryParams(queryParams [, queryName]) : Promise`
+#### `setQueryParams(queryParams [, queryName|queryNames]) : Promise`
 
  * Call this method to perform all queries again with the new `queryParams`.
- * Optionally specify a `queryName` to only re-perform a single query.
+ * Optionally specify a string or string-array to only re-perform a specific query/queries.
  * Returns a Promise to the query results. The same Promise that's passed to `onQuery()`.
  * Tip: catch errors by defining a `.catch()` handler on the returned Promise.
  * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L35-L43)

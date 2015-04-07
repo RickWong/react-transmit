@@ -32,10 +32,19 @@ module.exports = function (Component, options) {
 
 				return Container.queries[queryName](queryParams);
 			},
-			getAllQueries: function (queryParams) {
+			getAllQueries: function (queryParams, optionalQueryNames) {
 				var promises = [];
+				optionalQueryNames = optionalQueryNames || [];
+
+				if (typeof optionalQueryNames === "string") {
+					optionalQueryNames = [optionalQueryNames];
+				}
 
 				Object.keys(Container.queries).forEach(function (queryName) {
+					if (optionalQueryNames.length && optionalQueryNames.indexOf(queryName) < 0) {
+						return;
+					}
+
 					var promise = Container.getQuery(
 						queryName, queryParams
 					).then(function (queryResult) {
@@ -79,7 +88,7 @@ module.exports = function (Component, options) {
 				this.props.onQuery.call(this, Promise.resolve({}));
 			}
 		},
-		setQueryParams: function (nextParams, optionalQueryName) {
+		setQueryParams: function (nextParams, optionalQueryNames) {
 			var _this = this;
 
 			var promise = new Promise(function (resolve, reject) {
@@ -87,20 +96,7 @@ module.exports = function (Component, options) {
 				var promise;
 
 				assign(_this.currentParams, nextParams);
-
-				if (optionalQueryName) {
-					promise = Container.getQuery(
-						optionalQueryName, _this.currentParams
-					).then(function (queryResult) {
-						var queryResults = {};
-						queryResults[optionalQueryName] = queryResult;
-
-						return queryResults;
-					});
-				}
-				else {
-					promise = Container.getAllQueries(_this.currentParams);
-				}
+				promise = Container.getAllQueries(_this.currentParams, optionalQueryNames);
 
 				promise.then(function (queryResults) {
 					try {
