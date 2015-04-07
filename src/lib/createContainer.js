@@ -162,7 +162,7 @@ module.exports = function (Component, options) {
 
 			// Query results must be guaranteed to render.
 			if (!this.hasQueryResults()) {
-				return props.emptyView || null;
+				return props.emptyView || React.createElement(React.View);
 			}
 
 			return React.createElement(
