@@ -77,6 +77,11 @@ module.exports = function (Component, options) {
 			}
 		},
 		componentWillMount: function () {
+			if (this.pendingState) {
+				this.setState(this.pendingState);
+				this.pendingState = null;
+			}
+
 			var externalQueryParams = this.props && this.props.queryParams || {};
 
 			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
@@ -102,7 +107,12 @@ module.exports = function (Component, options) {
 
 				promise.then(function (queryResults) {
 					try {
-						_this.setState(queryResults);
+						if (_this.isMounted()) {
+							_this.setState(queryResults);
+						}
+						else {
+							_this.pendingState = queryResults;
+						}
 					}
 					catch (error) {
 						// Call to setState may fail if renderToString() was used.
