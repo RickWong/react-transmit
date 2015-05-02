@@ -91,6 +91,8 @@ module.exports = function (Component, options) {
 		setQueryParams: function (nextParams, optionalQueryNames) {
 			var _this = this;
 
+			this.replaceState({});
+
 			var promise = new Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
