@@ -93,11 +93,15 @@ module.exports = function (Component, options) {
 				this.props.onQuery.call(this, Promise.resolve({}));
 			}
 		},
+		refreshQuery: function(optionalResetQuery) {
+			if (optionalResetQuery) {
+				this.replaceState({});
+			}
+			
+			this.setQueryParams();
+		},
 		setQueryParams: function (nextParams, optionalQueryNames) {
 			var _this = this;
-
-			this.replaceState({});
-
 			var promise = new Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
@@ -165,6 +169,7 @@ module.exports = function (Component, options) {
 			var utilProps = {
 				queryParams:    this.currentParams,
 				setQueryParams: this.setQueryParams,
+				refreshQuery:   this.refreshQuery,
 				onQuery:        undefined
 			};
 
