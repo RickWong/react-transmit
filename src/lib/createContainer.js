@@ -77,6 +77,11 @@ module.exports = function (Component, options) {
 			}
 		},
 		componentWillMount: function () {
+			if (this.pendingState) {
+				this.setState(this.pendingState);
+				this.pendingState = null;
+			}
+
 			var externalQueryParams = this.props && this.props.queryParams || {};
 
 			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
@@ -88,9 +93,15 @@ module.exports = function (Component, options) {
 				this.props.onQuery.call(this, Promise.resolve({}));
 			}
 		},
+		refreshQuery: function(optionalResetQuery) {
+			if (optionalResetQuery) {
+				this.replaceState({});
+			}
+			
+			this.setQueryParams();
+		},
 		setQueryParams: function (nextParams, optionalQueryNames) {
 			var _this = this;
-
 			var promise = new Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
@@ -100,7 +111,12 @@ module.exports = function (Component, options) {
 
 				promise.then(function (queryResults) {
 					try {
-						_this.setState(queryResults);
+						if (_this.isMounted()) {
+							_this.setState(queryResults);
+						}
+						else {
+							_this.pendingState = queryResults;
+						}
 					}
 					catch (error) {
 						// Call to setState may fail if renderToString() was used.
@@ -153,6 +169,7 @@ module.exports = function (Component, options) {
 			var utilProps = {
 				queryParams:    this.currentParams,
 				setQueryParams: this.setQueryParams,
+				refreshQuery:   this.refreshQuery,
 				onQuery:        undefined
 			};
 
