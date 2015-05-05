@@ -17,7 +17,10 @@ module.exports = function (Component, options) {
 		propTypes: {
 			queryParams: React.PropTypes.object,
 			onQuery:     React.PropTypes.func,
-			emptyView:   React.PropTypes.element
+			emptyView:   React.PropTypes.oneOfType([
+				React.PropTypes.element,
+				React.PropTypes.func
+	        ])
 		},
 		statics: {
 			queryParams: options.queryParams || {},
@@ -158,7 +161,9 @@ module.exports = function (Component, options) {
 
 			// Query results must be guaranteed to render.
 			if (!this.hasQueryResults()) {
-				return props.emptyView || null;
+				return (typeof props.emptyView === "function") ?
+				       props.emptyView() :
+				       props.emptyView || null;
 			}
 
 			return React.createElement(
