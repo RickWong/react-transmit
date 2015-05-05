@@ -10,7 +10,7 @@ var assign = React.__spread;
  * @function createContainer
  */
 module.exports = function (Component, options) {
-	var options = arguments[1] || {};
+	options = arguments[1] || {};
 
 	var Container = React.createClass({
 		displayName: Component.displayName + "Container",
