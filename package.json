@@ -13,7 +13,9 @@
     "transmit",
     "relay",
     "react-component",
-    "native"
+    "native",
+    "react-native",
+    "ios"
   ],
   "main": "src/lib/react-transmit.js",
   "scripts": {
@@ -23,7 +25,7 @@
     "watch": "concurrent --kill-others 'npm run watch-client' 'npm run localhost'"
   },
   "dependencies": {
-    "react-native": ">= 0.3.0",
+    "react-native": ">= 0.3.1",
     "ascii-json": "0.2.0"
   },
   "devDependencies": {
