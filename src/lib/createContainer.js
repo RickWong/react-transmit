@@ -80,7 +80,7 @@ module.exports = function (Component, options) {
 			}
 		},
 		componentWillMount: function () {
-			var externalQueryParams = this.props && this.props.queryParams || {};
+			var externalQueryParams = this.props || this.props.queryParams || {};
 
 			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
 
