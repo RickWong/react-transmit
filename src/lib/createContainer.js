@@ -155,8 +155,7 @@ module.exports = function (Component, options) {
 			var props     = this.props || {};
 			var utilProps = {
 				queryParams:    this.currentParams,
-				setQueryParams: this.setQueryParams,
-				onQuery:        undefined
+				setQueryParams: this.setQueryParams
 			};
 
 			// Query results must be guaranteed to render.
