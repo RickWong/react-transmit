@@ -47,6 +47,11 @@ const Newsfeed = React.createClass({
 export default Transmit.createContainer(Newsfeed, {
 	queryParams: {
 		count: 10  // Default query params.
+		evalCount: function (externalQueryParams) {
+			// Can also be a function.
+			// "externalQueryParams" contains params, passed by an external container.
+			return 20;
+		}
 	},
 	queries: {
 		// Query names become the Transmit prop names. 

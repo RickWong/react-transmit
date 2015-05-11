@@ -93,7 +93,7 @@ Transmit exposes a complemental API to the contained ReactClass via its `this.pr
 
 #### `queryParams : object`
 
-* Currently used queryParams, read-only.
+* Currently used queryParams, read-only. Can be a value or a function, returning value.
 * You can use mutate these values to by calling `this.setQueryParams()` that will also re-perform the queries.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L37)
 
