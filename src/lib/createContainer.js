@@ -79,13 +79,26 @@ module.exports = function (Component, options) {
 				});
 			}
 		},
-		componentWillMount: function () {
+		setCurrentParams: function(nextParams) {
 			var externalQueryParams = this.props && this.props.queryParams || {};
+			externalQueryParams = assign({}, externalQueryParams, nextParams);
 
-			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
+			var queryParams = {};
+			Object.keys(Container.queryParams).forEach(function (queryParam) {
+				var val = Container.queryParams[queryParam];
+				if (typeof val === "function") {
+					val = val(externalQueryParams);
+				}
+				queryParams[queryParam] = val;
+			});
+
+			this.currentParams = assign({}, queryParams, externalQueryParams, nextParams);
+		},
+		componentWillMount: function () {
+			this.setCurrentParams({});
 
 			if (!this.hasQueryResults()) {
-				this.setQueryParams({});
+				this.setQueryParams();
 			}
 			else if (this.props.onQuery) {
 				this.props.onQuery.call(this, Promise.resolve({}));
@@ -98,7 +111,9 @@ module.exports = function (Component, options) {
 				var props = _this.props || {};
 				var promise;
 
-				assign(_this.currentParams, nextParams);
+				if (nextParams) {
+					_this.setCurrentParams(nextParams);
+				}
 				promise = Container.getAllQueries(_this.currentParams, optionalQueryNames);
 
 				promise.then(function (queryResults) {
