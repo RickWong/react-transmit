@@ -3,8 +3,9 @@
  */
 "use strict";
 
-var React  = require("./react");
-var assign = React.__spread;
+var promiseProxy = require("./promiseProxy");
+var React        = require("./react");
+var assign       = React.__spread;
 
 /**
  * @function renderToString
@@ -12,7 +13,7 @@ var assign = React.__spread;
 module.exports = function (Component, props) {
 	props = props || {};
 
-	return new Promise(function (resolve, reject) {
+	return new promiseProxy.Promise(function (resolve, reject) {
 		var onQuery = function (promise) {
 			promise.then(function (queryResults) {
 				var myProps     = assign({}, props, queryResults);
@@ -20,7 +21,7 @@ module.exports = function (Component, props) {
 
 				resolve({
 					reactString: reactString,
-					reactData: queryResults
+					reactData:   queryResults
 				});
 			}).catch(function (error) {
 				reject(error);

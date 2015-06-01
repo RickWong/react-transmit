@@ -4,8 +4,11 @@
 "use strict";
 
 module.exports = {
-	createContainer: require("./createContainer"),
-	render: require("./render"),
-	renderToString: require("./renderToString"),
-	injectIntoMarkup: require("./injectIntoMarkup")
+	createContainer:       require("./createContainer"),
+	render:                require("./render"),
+	renderToString:        require("./renderToString"),
+	injectIntoMarkup:      require("./injectIntoMarkup"),
+	setPromiseConstructor: function (PromiseConstructor) {
+		require("./promiseProxy").Promise = PromiseConstructor;
+	}
 };

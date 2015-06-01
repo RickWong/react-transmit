@@ -3,8 +3,9 @@
  */
 "use strict";
 
-var React  = require("./react");
-var assign = React.__spread;
+var promiseProxy = require("./promiseProxy");
+var React        = require("./react");
+var assign       = React.__spread;
 
 /**
  * @function createContainer
@@ -61,10 +62,10 @@ module.exports = function (Component, options) {
 				});
 
 				if (!promises.length) {
-					promises.push(Promise.resolve(true));
+					promises.push(promiseProxy.Promise.resolve(true));
 				}
 
-				return Promise.all(
+				return promiseProxy.Promise.all(
 					promises
 				).then(function (promisedQueries) {
 					var queryResults = {};
@@ -88,13 +89,13 @@ module.exports = function (Component, options) {
 				this.setQueryParams({});
 			}
 			else if (this.props.onQuery) {
-				this.props.onQuery.call(this, Promise.resolve({}));
+				this.props.onQuery.call(this, promiseProxy.Promise.resolve({}));
 			}
 		},
 		setQueryParams: function (nextParams, optionalQueryNames) {
 			var _this = this;
 
-			var promise = new Promise(function (resolve, reject) {
+			var promise = new promiseProxy.Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
 
