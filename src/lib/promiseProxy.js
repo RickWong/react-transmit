@@ -5,6 +5,6 @@
 
 module.exports = {
 	Promise: global.Promise || function () {
-		throw new Error("Missing ES6 Promise implementation")
+		throw new Error("Missing ES6 Promise implementation");
 	}
 };
