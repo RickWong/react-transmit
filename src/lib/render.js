@@ -12,5 +12,9 @@ var assign = React.__spread;
 module.exports = function (Component, props, targetDOMNode, callback) {
 	var myProps = assign({}, props, window.__reactTransmitPacket || {});
 
+	if (window.__reactTransmitPacket) {
+		delete window.__reactTransmitPacket;
+	}
+
 	React.render(React.createElement(Component, myProps), targetDOMNode, callback);
 };
