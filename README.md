@@ -1,6 +1,6 @@
 ![](http://i.imgur.com/X3JE4Ev.png?1)
 
-[View live demo](https://edealer.nl/react-transmit/) 
+[View live demo](https://edealer.nl/react-transmit/)
 
 # React Transmit
 
@@ -19,11 +19,11 @@ Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.
 ## Installation
 
 ```bash
-	# For web or Node:
-	npm install react-transmit
-	
-	# For React Native:
-	npm install react-transmit-native
+# For web or Node:
+npm install react-transmit
+
+# For React Native:
+npm install react-transmit-native
 ```
 
 ## Usage
@@ -36,29 +36,29 @@ import Transmit from "react-transmit";  // Import Transmit.
 import Story    from "./Story";
 
 const Newsfeed = React.createClass({
-	render () {
-		const stories = this.props.stories;  // Transmit props are guaranteed.
-		
-		return stories.map((story) => <Story story={story} />); // Pass down props.
-	}
+  render () {
+    const stories = this.props.stories;  // Transmit props are guaranteed.
+
+    return stories.map((story) => <Story story={story} />); // Pass down props.
+  }
 });
 
 // Higher-order component that will do queries for the above React component.
 export default Transmit.createContainer(Newsfeed, {
-	queryParams: {
-		count: 10  // Default query params.
-	},
-	queries: {
-		// Query names become the Transmit prop names. 
-		stories (queryParams) {
-			// This "stories" query returns a Promise composed of 3 other Promises.
-			return Promise.all([
-				Story.getQuery("story", {storyId: 1}),
-				Story.getQuery("story", {storyId: 2}),
-				Story.getQuery("story", {storyId: 3})
-			]);
-		}
-	}
+  queryParams: {
+    count: 10  // Default query params.
+  },
+  queries: {
+    // Query names become the Transmit prop names.
+    stories (queryParams) {
+      // This "stories" query returns a Promise composed of 3 other Promises.
+      return Promise.all([
+        Story.getQuery("story", {storyId: 1}),
+        Story.getQuery("story", {storyId: 2}),
+        Story.getQuery("story", {storyId: 3})
+      ]);
+    }
+  }
 });
 ````
 **Story.js** (read the comments)
@@ -68,20 +68,20 @@ import React    from "react";
 import Transmit from "react-transmit";  // Import Transmit.
 
 const Story = React.createClass({
-	render () {
-		const story = this.props.story; // Passed down props.
-		
-		return <p>{story.content}</p>;
-	}
+  render () {
+    const story = this.props.story; // Passed down props.
+
+    return <p>{story.content}</p>;
+  }
 });
 
 export default Transmit.createContainer(Story, {
-	queries: {
-		// This "story" query returns a Fetch API promise.
-		story (queryParams) {
-			return fetch("https://some.api/stories/" + queryParams.storyId).then(resp => resp.json());
-		}
-	}
+  queries: {
+    // This "story" query returns a Fetch API promise.
+    story (queryParams) {
+      return fetch("https://some.api/stories/" + queryParams.storyId).then(resp => resp.json());
+    }
+  }
 });
 ````
 
