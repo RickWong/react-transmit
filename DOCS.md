@@ -19,7 +19,7 @@ The methods are named after their React / Relay counterparts. Their functionalit
 * Possible `options` are the `queryParams` and the `queries` definitions. 
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L50-L73)
 
-#### `render(ReactClass, optionalProps, targetDOMNode) : void`
+#### `render(ReactClass, optionalProps, targetDOMNode, completeCallback) : void`
 
 * For isomorphic apps, client-side.
 * Use it instead of `React.render()` when you're using Transmit's `renderToString()` on the server-side. 
@@ -39,6 +39,10 @@ The methods are named after their React / Relay counterparts. Their functionalit
 * If you captured query results on the server with Transmit's `renderToString()` then you can inject that data into the final markup that's sent to the client. Doing this allows Transmit's `render()` on the client to re-use the data. 
 * This method is actually copied from [react-async](https://github.com/andreypopp/react-async). Thanks [@andreypopp](https://github.com/andreypopp)!
 * [Example usage](https://github.com/RickWong/react-isomorphic-starterkit/blob/2bf29c747770e79de06e130af325e0bdfb216bc9/src/server.js#L52)
+
+#### `setPromiseConstructor(PromiseConstructor) : void`
+
+* Optional. Provide your preferred Promise implementation instead of using `global.Promise` by default.
 
 ## API: `Transmit.Container` (Higher-order component)
 
