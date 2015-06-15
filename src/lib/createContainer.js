@@ -14,7 +14,7 @@ module.exports = function (Component, options) {
 	options = arguments[1] || {};
 
 	var Container = React.createClass({
-		displayName: Component.displayName + "Container",
+		displayName: (Component.displayName || Component.name) + "Container",
 		propTypes: {
 			queryParams: React.PropTypes.object,
 			onQuery:     React.PropTypes.func,
