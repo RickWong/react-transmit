@@ -14,7 +14,7 @@ module.exports = function (Component, options) {
 	options = arguments[1] || {};
 
 	var Container = React.createClass({
-		displayName: Component.displayName + "Container",
+		displayName: (Component.displayName || Component.name) + "Container",
 		propTypes: {
 			queryParams: React.PropTypes.object,
 			onQuery:     React.PropTypes.func,
@@ -103,6 +103,11 @@ module.exports = function (Component, options) {
 				promise = Container.getAllQueries(_this.currentParams, optionalQueryNames);
 
 				promise.then(function (queryResults) {
+					// See `isMounted` discussion at https://github.com/facebook/react/issues/2787
+					if (!_this.isMounted()) {
+						return queryResults;
+					}
+
 					try {
 						_this.setState(queryResults);
 					}
