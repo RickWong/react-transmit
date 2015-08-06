@@ -103,10 +103,13 @@ module.exports = function (Component, options) {
 				promise = Container.getAllQueries(_this.currentParams, optionalQueryNames);
 
 				promise.then(function (queryResults) {
+					// See `isMounted` discussion at https://github.com/facebook/react/issues/2787
+					if (!_this.isMounted()) {
+						return queryResults;
+					}
+
 					try {
-						// See discussion at https://github.com/facebook/react/issues/2787
-						if (_this.isMounted())
-							_this.setState(queryResults);
+						_this.setState(queryResults);
 					}
 					catch (error) {
 						// Call to setState may fail if renderToString() was used.
