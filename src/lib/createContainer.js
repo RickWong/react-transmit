@@ -6,6 +6,7 @@
 var promiseProxy = require("./promiseProxy");
 var React        = require("./react");
 var assign       = React.__spread;
+var shallowEqual = require('./shallowEqual');
 
 /**
  * @function createContainer
@@ -92,12 +93,19 @@ module.exports = function (Component, options) {
 				this.props.onQuery.call(this, promiseProxy.Promise.resolve({}));
 			}
 		},
-		setQueryParams: function (nextParams, optionalQueryNames) {
+		setQueryParams: function (nextParams, optionalQueryNames, options) {
 			var _this = this;
+			options = arguments[2] || {};
 
 			var promise = new promiseProxy.Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
+				var allNextParams = {};
+				var paramsEquals;
+
+				assign(allNextParams, _this.currentParams, nextParams)
+				paramsEquals = shallowEqual(allNextParams, _this.currentParams)
+				if (options.checkEquals && paramsEquals && _this.hasQueryResults()) return
 
 				assign(_this.currentParams, nextParams);
 				promise = Container.getAllQueries(_this.currentParams, optionalQueryNames);
