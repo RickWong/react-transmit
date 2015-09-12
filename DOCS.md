@@ -16,7 +16,7 @@ The methods are named after their React / Relay counterparts. Their functionalit
 
 * Creates a container that wraps the original ReactClass.
 * The container performs queries and passes query results as props to the original ReactClass.
-* Possible `options` are the `initialVariables`, `prepareVariables` function, and the `queries` or `fragments` definitions.
+* Possible `options` are the `initialVariables`, `prepareVariables` function, `shouldContainerUpdate` function, and the `fragments` definitions.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L50-L73)
 
 #### `render(ReactClass, optionalProps, targetDOMNode, completeCallback) : void`
@@ -50,9 +50,9 @@ Transmit's `createContainer()` method describes a new React component, a so-call
 
 ### PropTypes / specifiable props
 
-#### `onQuery(Promise) : function`
+#### `onFetch(Promise) : function`
 
-* Optional. Pass this callback function to accept a Promise to the query results.
+* Optional. Pass this callback function to accept a Promise to the fetch results.
 * Don't use this to call `setState()`. That's not necessary. Only use it for caching or logging the query results.
 * Tip: catch errors by defining a `.catch()` handler on the accepted Promise.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Main.js#L16)
@@ -82,7 +82,7 @@ Transmit exposes a complemental API to the contained ReactClass via its `this.pr
 
 ### Transmit props
 
-#### `<queryName> : <queryResult>`
+#### `<fragmentName> : <fetchedFragment>`
 
 * For each declared query the original ReactClass will receive the query result from the container as a prop named exactly like the query.
 * The query results are simply the values resolved from the query's Promise.
@@ -96,10 +96,10 @@ Transmit exposes a complemental API to the contained ReactClass via its `this.pr
 
 ### Methods
 
-#### `transmit.forceFetch(variables [, queryName|queryNames]) : Promise`
+#### `transmit.forceFetch(variables [, fragmentName|fragmentNames]) : Promise`
 
  * Call this method to perform all queries again with the new `variables`.
  * Optionally specify a string or string-array to only re-perform a specific query/queries.
- * Returns a Promise to the query results. The same Promise that's passed to `onQuery()`.
+ * Returns a Promise to the query results. The same Promise that's passed to `onFetch()`.
  * Tip: catch errors by defining a `.catch()` handler on the returned Promise.
  * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L35-L43)

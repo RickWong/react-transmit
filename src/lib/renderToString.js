@@ -6,7 +6,7 @@
 var promiseProxy = require("./promiseProxy");
 var React        = require("./react");
 var ReactDOM     = require("./react-dom");
-var assign       = React.__spread;
+var assign       = require("./assign");
 
 /**
  * @function renderToString
@@ -15,21 +15,21 @@ module.exports = function (Component, props) {
 	props = props || {};
 
 	return new promiseProxy.Promise(function (resolve, reject) {
-		var onQuery = function (promise) {
-			promise.then(function (queryResults) {
-				var myProps     = assign({}, props, queryResults);
+		var onFetch = function (promise) {
+			promise.then(function (fetchedResults) {
+				var myProps     = assign({}, props, fetchedResults);
 				var reactString = ReactDOM.renderToString(React.createElement(Component, myProps));
 
 				resolve({
 					reactString: reactString,
-					reactData:   queryResults
+					reactData:   fetchedResults
 				});
 			}).catch(function (error) {
 				reject(error);
 			});
 		};
 
-		var myProps = assign({}, props, {onQuery: onQuery});
+		var myProps = assign({}, props, {onFetch: onFetch});
 		ReactDOM.renderToString(React.createElement(Component, myProps));
 	});
 };

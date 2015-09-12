@@ -38,13 +38,13 @@ const Story = React.createClass({
 });
 
 /**
- *  Higher-order component that will do queries for the above React component.
+ *  Higher-order component that will fetch data for the above React component.
  */
 export default Transmit.createContainer(Story, {
 	fragments: {
 		/**
-		 * The "story" query will fetch some stargazers for the next Story, and returns
-		 * the next Story in a Promise.
+		 * The "story" fragment will fetch some GitHub users as likers, and returns
+		 * a Promise to the new Story object.
 		 */
 		story ({storyId}) {
 			if (!storyId) {
@@ -63,7 +63,7 @@ export default Transmit.createContainer(Story, {
 					return response.json();
 				}).then((stargazers) => {
 					/**
-					 * Chain a promise that maps stargazers into likes.
+					 * Chain a promise that maps GitHub users into likers.
 					 */
 					return Promise.all(
 						stargazers.map((user) => Like.getFragment("like", {user}))
