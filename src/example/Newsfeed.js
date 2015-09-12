@@ -30,16 +30,16 @@ const Newsfeed = React.createClass({
 	},
 	onLoadMore () {
 		/**
-		 * Call this.props.transmit.setVariables() to tell Transmit to query again.
+		 * Call this.props.transmit.forceFetch() to tell Transmit to query again.
 		 */
-		this.props.transmit.setVariables({
+		this.props.transmit.forceFetch({
 			currentNewsfeed:  this.props.newsfeed,
 			nextStoryId:      this.props.transmit.variables.nextStoryId + 1
 		}).then((queryResults) => {
 			/**
 			 * This is optional. It allows this component to capture the Transmit query results.
  			 */
-			console.log("Newsfeed setVariables: ", queryResults);
+			console.log("Newsfeed forceFetch: ", queryResults);
 		});
 	}
 });

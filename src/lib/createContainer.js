@@ -86,13 +86,13 @@ module.exports = function (Component, options) {
 			this.currentVariables = assign({}, Container.variables, externalVariables);
 
 			if (!this.hasQueryResults()) {
-				this.setVariables({});
+				this.forceFetch({});
 			}
 			else if (this.props.onQuery) {
 				this.props.onQuery.call(this, promiseProxy.Promise.resolve({}));
 			}
 		},
-		setVariables: function (nextParams, optionalQueryNames) {
+		forceFetch: function (nextParams, optionalQueryNames) {
 			var _this = this;
 
 			var promise = new promiseProxy.Promise(function (resolve, reject) {
@@ -161,7 +161,7 @@ module.exports = function (Component, options) {
 			var props     = this.props || {};
 			var transmit  = {
 				variables:    this.currentVariables,
-				setVariables: this.setVariables,
+				forceFetch: this.forceFetch,
 				onQuery:      undefined
 			};
 
