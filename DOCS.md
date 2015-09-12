@@ -98,12 +98,12 @@ Transmit exposes a complemental API to the contained ReactClass via its `this.pr
 #### `transmit.variables : object`
 
 * Currently used variables, read-only.
-* You can use mutate these values to by calling `this.props.transmit.setVariables()` that will also re-perform the queries.
+* You can use mutate these values to by calling `this.props.transmit.forceFetch()` that will also re-perform the queries.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L37)
 
 ### Methods
 
-#### `transmit.setVariables(variables [, queryName|queryNames]) : Promise`
+#### `transmit.forceFetch(variables [, queryName|queryNames]) : Promise`
 
  * Call this method to perform all queries again with the new `variables`.
  * Optionally specify a string or string-array to only re-perform a specific query/queries.
