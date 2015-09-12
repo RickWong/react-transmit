@@ -26,7 +26,7 @@ module.exports = function (Component, options) {
 		},
 		statics: {
 			variables:        options.initialVariables || {},
-			prepareVariables: options.prepareVariables || function (v) {return v;},
+			prepareVariables: options.prepareVariables || function (v) { return v; },
 			fragments:        options.fragments || {},
 			/**
 			 * @returns {Promise}
@@ -36,58 +36,56 @@ module.exports = function (Component, options) {
 					throw new Error(Component.displayName + " has no '" + fragmentName +"' fragment")
 				}
 
-				variables = variables || {};
-				assign(variables, Container.variables, assign({}, variables));
+				variables = assign({}, Container.variables, variables || {});
 
 				return Container.fragments[fragmentName](variables);
-			}
-		},
-		/**
-		 * @returns {Promise}
-		 */
-		getAllFragments: function (variables, optionalFragmentNames) {
-			var _this = this;
-			var promises = [];
-			optionalFragmentNames = optionalFragmentNames || [];
+			},
+			/**
+			 * @returns {Promise}
+			 */
+			getAllFragments: function (variables, optionalFragmentNames) {
+				var promises = [];
+				optionalFragmentNames = optionalFragmentNames || [];
 
-			if (typeof optionalFragmentNames === "string") {
-				optionalFragmentNames = [optionalFragmentNames];
-			}
-
-			Object.keys(Container.fragments).forEach(function (fragmentName) {
-				if (optionalFragmentNames.length && optionalFragmentNames.indexOf(fragmentName) < 0) {
-					return;
+				if (typeof optionalFragmentNames === "string") {
+					optionalFragmentNames = [optionalFragmentNames];
 				}
 
-				var promise = Container.getFragment(
-					fragmentName, variables
-				).then(function (fragmentResult) {
-					var fragmentResults = {};
-					fragmentResults[fragmentName] = fragmentResult;
-
-					return fragmentResults;
-				});
-
-				promises.push(promise);
-			});
-
-			if (!promises.length) {
-				promises.push(promiseProxy.Promise.resolve(true));
-			}
-
-			return promiseProxy.Promise.all(
-				promises
-			).then(function (promisedFragments) {
-				var fetchedFragments = {};
-
-				promisedFragments.forEach(function (promisedFragment) {
-					if (typeof promisedFragment === "object") {
-						assign(fetchedFragments, promisedFragment);
+				Object.keys(Container.fragments).forEach(function (fragmentName) {
+					if (optionalFragmentNames.length && optionalFragmentNames.indexOf(fragmentName) < 0) {
+						return;
 					}
+
+					var promise = Container.getFragment(
+						fragmentName, variables
+					).then(function (fragmentResult) {
+						var fragmentResults = {};
+						fragmentResults[fragmentName] = fragmentResult;
+
+						return fragmentResults;
+					});
+
+					promises.push(promise);
 				});
 
-				return fetchedFragments;
-			});
+				if (!promises.length) {
+					promises.push(promiseProxy.Promise.resolve(true));
+				}
+
+				return promiseProxy.Promise.all(
+					promises
+				).then(function (promisedFragments) {
+					var fetchedFragments = {};
+
+					promisedFragments.forEach(function (promisedFragment) {
+						if (typeof promisedFragment === "object") {
+							assign(fetchedFragments, promisedFragment);
+						}
+					});
+
+					return fetchedFragments;
+				});
+			},
 		},
 		/**
 		 * @returns {Promise|Boolean}
@@ -106,7 +104,7 @@ module.exports = function (Component, options) {
 				var promise;
 
 				assign(_this.variables, nextVariables || {});
-				promise = _this.getAllFragments(_this.variables, optionalFragmentNames);
+				promise = Container.getAllFragments(_this.variables, optionalFragmentNames);
 
 				promise.then(function (fetchedFragments) {
 					// See `isMounted` discussion at https://github.com/facebook/react/issues/2787

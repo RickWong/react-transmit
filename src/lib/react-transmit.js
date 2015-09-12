@@ -4,6 +4,7 @@
 "use strict";
 
 module.exports = {
+	isContainer:           require("./isContainer"),
 	createContainer:       require("./createContainer"),
 	render:                require("./render"),
 	renderToString:        require("./renderToString"),
