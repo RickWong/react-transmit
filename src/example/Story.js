@@ -41,26 +41,20 @@ const Story = React.createClass({
  *  Higher-order component that will do queries for the above React component.
  */
 export default Transmit.createContainer(Story, {
-	/**
-	 * Default query params.
-	 */
-	initialVariables: {
-		storyId: null
-	},
-	queries: {
+	fragments: {
 		/**
 		 * The "story" query will fetch some stargazers for the next Story, and returns
 		 * the next Story in a Promise.
 		 */
-		story (variables) {
-			if (!variables.storyId) {
-				throw new Error("variables.storyId required");
+		story ({storyId}) {
+			if (!storyId) {
+				throw new Error("storyId required");
 			}
 
 			return (
 				fetch(
 					"https://api.github.com/repos/RickWong/react-transmit/stargazers" +
-					`?per_page=60&page=${variables.storyId}`
+					`?per_page=60&page=${storyId}`
 				).then((response) => {
 					if (!response.ok) {
 						throw new Error(response.statusText);
@@ -72,7 +66,7 @@ export default Transmit.createContainer(Story, {
 					 * Chain a promise that maps stargazers into likes.
 					 */
 					return Promise.all(
-						stargazers.map((user) => Like.getQuery("like", {user}))
+						stargazers.map((user) => Like.getFragment("like", {user}))
 					);
 				}).then((likes) => {
 					/**

@@ -26,26 +26,20 @@ const Like = React.createClass({
  *  Higher-order component that will do queries for the above React component.
  */
 export default Transmit.createContainer(Like, {
-	/**
-	 * Default query params.
-	 */
-	initialVariables: {
-		user: null
-	},
-	queries: {
+	fragments: {
 		/**
 		 * The "like" query maps a stargazer into a like.
 		 */
-		like (variables) {
-			if (!variables.user) {
-				throw new Error("variables.user required");
+		like ({user}) {
+			if (!user) {
+				throw new Error("user required");
 			}
 
 			return Promise.resolve({
-				name: variables.user.login,
-				uri: variables.user.html_url,
+				name: user.login,
+				uri: user.html_url,
 				profile_picture: {
-					uri: `${variables.user.avatar_url}&s=20`
+					uri: `${user.avatar_url}&s=20`
 				}
 			});
 		}

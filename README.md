@@ -53,9 +53,9 @@ export default Transmit.createContainer(Newsfeed, {
 		stories (variables) {
 			// This "stories" query returns a Promise composed of 3 other Promises.
 			return Promise.all([
-				Story.getQuery("story", {storyId: 1}),
-				Story.getQuery("story", {storyId: 2}),
-				Story.getQuery("story", {storyId: 3})
+				Story.getFragment("story", {storyId: 1}),
+				Story.getFragment("story", {storyId: 2}),
+				Story.getFragment("story", {storyId: 3})
 			]);
 		}
 	}
@@ -76,10 +76,10 @@ const Story = React.createClass({
 });
 
 export default Transmit.createContainer(Story, {
-	queries: {
+	fragments: {
 		// This "story" query returns a Fetch API promise.
-		story (variables) {
-			return fetch("https://some.api/stories/" + variables.storyId).then(resp => resp.json());
+		story ({storyId) {
+			return fetch("https://some.api/stories/" + storyId).then(resp => resp.json());
 		}
 	}
 });
