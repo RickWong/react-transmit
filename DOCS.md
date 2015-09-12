@@ -1,4 +1,4 @@
-## API: `Transmit` 
+## API: `Transmit`
 
 Transmit API is available from the `react-transmit` or `react-transmit-native` package:
 
@@ -15,20 +15,20 @@ The methods are named after their React / Relay counterparts. Their functionalit
 #### `createContainer(ReactClass, options) : ReactClass`
 
 * Creates a container that wraps the original ReactClass.
-* The container performs queries and passes query results as props to the original ReactClass. 
-* Possible `options` are the `queryParams` and the `queries` definitions. 
+* The container performs queries and passes query results as props to the original ReactClass.
+* Possible `options` are the `initialVariables` and the `queries` definitions.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L50-L73)
 
 #### `render(ReactClass, optionalProps, targetDOMNode, completeCallback) : void`
 
 * For isomorphic apps, client-side.
-* Use it instead of `React.render()` when you're using Transmit's `renderToString()` on the server-side. 
+* Use it instead of `React.render()` when you're using Transmit's `renderToString()` on the server-side.
 * [Example usage](https://github.com/RickWong/react-isomorphic-starterkit/blob/2bf29c747770e79de06e130af325e0bdfb216bc9/src/client.js#L10)
 
 #### `renderToString(ReactClass [, optionalProps]) : Promise`
 
 * For isomorphic apps, server-side.
-* Use it on the server to render your React component tree and capture the Transmit query results. 
+* Use it on the server to render your React component tree and capture the Transmit query results.
 * Returns a Promise to a the rendered React-string and the captured query results.
 * Tip: catch errors by defining a `.catch()` handler on the returned Promise.
 * [Example usage](https://github.com/RickWong/react-isomorphic-starterkit/blob/2bf29c747770e79de06e130af325e0bdfb216bc9/src/server.js#L34-L52)
@@ -36,7 +36,7 @@ The methods are named after their React / Relay counterparts. Their functionalit
 #### `injectIntoMarkup(html, data, scripts) : string`
 
 * For isomorphic apps, server-side.
-* If you captured query results on the server with Transmit's `renderToString()` then you can inject that data into the final markup that's sent to the client. Doing this allows Transmit's `render()` on the client to re-use the data. 
+* If you captured query results on the server with Transmit's `renderToString()` then you can inject that data into the final markup that's sent to the client. Doing this allows Transmit's `render()` on the client to re-use the data.
 * This method is actually copied from [react-async](https://github.com/andreypopp/react-async). Thanks [@andreypopp](https://github.com/andreypopp)!
 * [Example usage](https://github.com/RickWong/react-isomorphic-starterkit/blob/2bf29c747770e79de06e130af325e0bdfb216bc9/src/server.js#L52)
 
@@ -57,10 +57,10 @@ Transmit's `createContainer()` method describes a new React component, a so-call
 * Tip: catch errors by defining a `.catch()` handler on the accepted Promise.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Main.js#L16)
 
-#### `queryParams : object`
+#### `variables : object`
 
-* Optional. 
-* Overwrites the default `queryParams` defined with `createContainer()`. 
+* Optional.
+* Overwrites the default `initialVariables` defined with `createContainer()`.
 
 #### `emptyView : ReactElement`
 
@@ -69,14 +69,14 @@ Transmit's `createContainer()` method describes a new React component, a so-call
 
 ### Static Methods
 
-#### `getAllQueries([queryParams [, queryName|queryNames]]) : Promise `
+#### `getAllQueries([variables [, queryName|queryNames]]) : Promise `
 
 * Performs all queries and returns a composed Promise.
 * Optionally specify a string or string-array to only perform a specific query/queries.
 * Can be used to resolve a component's queries before rendering the component.
 * [Example usage](https://github.com/RickWong/react-transmit/issues/4#issuecomment-87233975)
 
-#### `getQuery(queryName [, queryParams]) : Promise`
+#### `getQuery(queryName [, variables]) : Promise`
 
 * Performs a single query and returns its Promise.
 * This is useful to compose a parent query that resolves child components' queries.
@@ -91,21 +91,21 @@ Transmit exposes a complemental API to the contained ReactClass via its `this.pr
 
 #### `<queryName> : <queryResult>`
 
-* For each declared query the original ReactClass will receive the query result from the container as a prop named exactly like the query. 
-* The query results are simply the values resolved from the query's Promise. 
+* For each declared query the original ReactClass will receive the query result from the container as a prop named exactly like the query.
+* The query results are simply the values resolved from the query's Promise.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L14)
 
-#### `queryParams : object`
+#### `transmit.variables : object`
 
-* Currently used queryParams, read-only.
-* You can use mutate these values to by calling `this.setQueryParams()` that will also re-perform the queries.
+* Currently used variables, read-only.
+* You can use mutate these values to by calling `this.props.transmit.setVariables()` that will also re-perform the queries.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L37)
 
 ### Methods
 
-#### `setQueryParams(queryParams [, queryName|queryNames]) : Promise`
+#### `transmit.setVariables(variables [, queryName|queryNames]) : Promise`
 
- * Call this method to perform all queries again with the new `queryParams`.
+ * Call this method to perform all queries again with the new `variables`.
  * Optionally specify a string or string-array to only re-perform a specific query/queries.
  * Returns a Promise to the query results. The same Promise that's passed to `onQuery()`.
  * Tip: catch errors by defining a `.catch()` handler on the returned Promise.

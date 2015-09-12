@@ -16,27 +16,27 @@ module.exports = function (Component, options) {
 	var Container = React.createClass({
 		displayName: (Component.displayName || Component.name) + "Container",
 		propTypes: {
-			queryParams: React.PropTypes.object,
-			onQuery:     React.PropTypes.func,
-			emptyView:   React.PropTypes.oneOfType([
+			variables: React.PropTypes.object,
+			onQuery:   React.PropTypes.func,
+			emptyView: React.PropTypes.oneOfType([
 				React.PropTypes.element,
 				React.PropTypes.func
 	        ])
 		},
 		statics: {
-			queryParams: options.queryParams || {},
-			queries:     options.queries || {},
-			getQuery:    function (queryName, queryParams) {
+			variables: options.initialVariables || {},
+			queries:   options.queries || {},
+			getQuery:  function (queryName, variables) {
 				if (!Container.queries[queryName]) {
 					throw new Error(Component.displayName + " has no '" + queryName +"' query")
 				}
 
-				queryParams = queryParams || {};
-				assign(queryParams, Container.queryParams, assign({}, queryParams));
+				variables = variables || {};
+				assign(variables, Container.variables, assign({}, variables));
 
-				return Container.queries[queryName](queryParams);
+				return Container.queries[queryName](variables);
 			},
-			getAllQueries: function (queryParams, optionalQueryNames) {
+			getAllQueries: function (variables, optionalQueryNames) {
 				var promises = [];
 				optionalQueryNames = optionalQueryNames || [];
 
@@ -50,7 +50,7 @@ module.exports = function (Component, options) {
 					}
 
 					var promise = Container.getQuery(
-						queryName, queryParams
+						queryName, variables
 					).then(function (queryResult) {
 						var queryResults = {};
 						queryResults[queryName] = queryResult;
@@ -81,26 +81,26 @@ module.exports = function (Component, options) {
 			}
 		},
 		componentWillMount: function () {
-			var externalQueryParams = this.props && this.props.queryParams || {};
+			var externalVariables = this.props && this.props.variables || {};
 
-			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
+			this.currentVariables = assign({}, Container.variables, externalVariables);
 
 			if (!this.hasQueryResults()) {
-				this.setQueryParams({});
+				this.setVariables({});
 			}
 			else if (this.props.onQuery) {
 				this.props.onQuery.call(this, promiseProxy.Promise.resolve({}));
 			}
 		},
-		setQueryParams: function (nextParams, optionalQueryNames) {
+		setVariables: function (nextParams, optionalQueryNames) {
 			var _this = this;
 
 			var promise = new promiseProxy.Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
 
-				assign(_this.currentParams, nextParams);
-				promise = Container.getAllQueries(_this.currentParams, optionalQueryNames);
+				assign(_this.currentVariables, nextParams);
+				promise = Container.getAllQueries(_this.currentVariables, optionalQueryNames);
 
 				promise.then(function (queryResults) {
 					// See `isMounted` discussion at https://github.com/facebook/react/issues/2787
@@ -159,10 +159,10 @@ module.exports = function (Component, options) {
 		render: function () {
 			var state     = this.state || {};
 			var props     = this.props || {};
-			var utilProps = {
-				queryParams:    this.currentParams,
-				setQueryParams: this.setQueryParams,
-				onQuery:        undefined
+			var transmit  = {
+				variables:    this.currentVariables,
+				setVariables: this.setVariables,
+				onQuery:      undefined
 			};
 
 			// Query results must be guaranteed to render.
@@ -174,7 +174,7 @@ module.exports = function (Component, options) {
 
 			return React.createElement(
 				Component,
-				assign({}, props, state, utilProps)
+				assign({}, props, state, {transmit: transmit})
 			);
 		}
 	});

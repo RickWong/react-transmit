@@ -44,7 +44,7 @@ export default Transmit.createContainer(Story, {
 	/**
 	 * Default query params.
 	 */
-	queryParams: {
+	initialVariables: {
 		storyId: null
 	},
 	queries: {
@@ -52,15 +52,15 @@ export default Transmit.createContainer(Story, {
 		 * The "story" query will fetch some stargazers for the next Story, and returns
 		 * the next Story in a Promise.
 		 */
-		story (queryParams) {
-			if (!queryParams.storyId) {
-				throw new Error("queryParams.storyId required");
+		story (variables) {
+			if (!variables.storyId) {
+				throw new Error("variables.storyId required");
 			}
 
 			return (
 				fetch(
 					"https://api.github.com/repos/RickWong/react-transmit/stargazers" +
-					`?per_page=60&page=${queryParams.storyId}`
+					`?per_page=60&page=${variables.storyId}`
 				).then((response) => {
 					if (!response.ok) {
 						throw new Error(response.statusText);
