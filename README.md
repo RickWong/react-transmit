@@ -37,7 +37,7 @@ import Story    from "./Story";
 
 const Newsfeed = React.createClass({
 	render () {
-		const stories = this.props.stories;  // Transmit props are guaranteed.
+		const {stories} = this.props;  // Transmit props are guaranteed.
 		
 		return stories.map((story) => <Story story={story} />); // Pass down props.
 	}
@@ -50,7 +50,7 @@ export default Transmit.createContainer(Newsfeed, {
 	},
 	queries: {
 		// Query names become the Transmit prop names. 
-		stories (variables) {
+		stories ({count}) {
 			// This "stories" query returns a Promise composed of 3 other Promises.
 			return Promise.all([
 				Story.getFragment("story", {storyId: 1}),
@@ -69,7 +69,7 @@ import Transmit from "react-transmit";  // Import Transmit.
 
 const Story = React.createClass({
 	render () {
-		const story = this.props.story; // Passed down props.
+		const {story} = this.props; // Passed down props.
 		
 		return <p>{story.content}</p>;
 	}
@@ -77,9 +77,9 @@ const Story = React.createClass({
 
 export default Transmit.createContainer(Story, {
 	fragments: {
-		// This "story" query returns a Fetch API promise.
-		story ({storyId) {
-			return fetch("https://some.api/stories/" + storyId).then(resp => resp.json());
+		// This "story" fragment returns a Fetch API promise.
+		story ({storyId}) {
+			return fetch("https://some.api/stories/" + storyId).then((res) => res.json());
 		}
 	}
 });
