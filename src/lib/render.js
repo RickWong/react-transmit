@@ -3,8 +3,9 @@
  */
 "use strict";
 
-var React  = require("./react");
-var assign = React.__spread;
+var React    = require("./react");
+var ReactDOM = require("./react-dom");
+var assign   = React.__spread;
 
 /**
  * @function render
@@ -16,5 +17,5 @@ module.exports = function (Component, props, targetDOMNode, callback) {
 		delete window.__reactTransmitPacket;
 	}
 
-	React.render(React.createElement(Component, myProps), targetDOMNode, callback);
+	ReactDOM.render(React.createElement(Component, myProps), targetDOMNode, callback);
 };
