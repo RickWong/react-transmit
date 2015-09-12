@@ -23,12 +23,12 @@ const Like = React.createClass({
 });
 
 /**
- *  Higher-order component that will do queries for the above React component.
+ *  Higher-order component that will fetch data for the above React component.
  */
 export default Transmit.createContainer(Like, {
 	fragments: {
 		/**
-		 * The "like" query maps a stargazer into a like.
+		 * The "like" fragment maps a GitHub user to a like.
 		 */
 		like ({user}) {
 			if (!user) {

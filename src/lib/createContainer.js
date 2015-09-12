@@ -5,10 +5,11 @@
 
 var promiseProxy = require("./promiseProxy");
 var React        = require("./react");
-var assign       = React.__spread;
+var assign       = require("./assign");
 
 /**
  * @function createContainer
+ * @returns {ReactClass}
  */
 module.exports = function (Component, options) {
 	options = arguments[1] || {};
@@ -16,18 +17,20 @@ module.exports = function (Component, options) {
 	var Container = React.createClass({
 		displayName: (Component.displayName || Component.name) + "Container",
 		propTypes: {
-			variables:     React.PropTypes.object,
-			onQuery:       React.PropTypes.func,
-			renderLoading: React.PropTypes.oneOfType([
+			variables:             React.PropTypes.object,
+			onFetch:               React.PropTypes.func,
+			renderLoading:         React.PropTypes.oneOfType([
 				React.PropTypes.element,
 				React.PropTypes.func
-	        ])
+			])
 		},
 		statics: {
 			variables:        options.initialVariables || {},
 			prepareVariables: options.prepareVariables || function (v) {return v;},
-			queries:          options.queries || {},
 			fragments:        options.fragments || {},
+			/**
+			 * @returns {Promise}
+			 */
 			getFragment:      function (fragmentName, variables) {
 				if (!Container.fragments[fragmentName]) {
 					throw new Error(Component.displayName + " has no '" + fragmentName +"' fragment")
@@ -39,50 +42,30 @@ module.exports = function (Component, options) {
 				return Container.fragments[fragmentName](variables);
 			}
 		},
-		componentWillMount: function () {
-			var externalVariables = this.props && this.props.variables || {};
-
-			this.currentVariables = assign({}, Container.variables, externalVariables);
-			this.currentVariables = Container.prepareVariables(this.currentVariables);
-
-			if (!this.hasQueryResults()) {
-				this.forceFetch({});
-			}
-			else if (this.props.onQuery) {
-				this.props.onQuery.call(this, promiseProxy.Promise.resolve({}));
-			}
-		},
-		getQuery: function (queryName, variables) {
-			if (!Container.queries[queryName]) {
-				throw new Error(Component.displayName + " has no '" + queryName +"' query")
-			}
-
-			variables = variables || {};
-			assign(variables, Container.variables, assign({}, variables));
-
-			return Container.queries[queryName](variables);
-		},
-		getAllQueries: function (variables, optionalQueryNames) {
+		/**
+		 * @returns {Promise}
+		 */
+		getAllFragments: function (variables, optionalFragmentNames) {
 			var _this = this;
 			var promises = [];
-			optionalQueryNames = optionalQueryNames || [];
+			optionalFragmentNames = optionalFragmentNames || [];
 
-			if (typeof optionalQueryNames === "string") {
-				optionalQueryNames = [optionalQueryNames];
+			if (typeof optionalFragmentNames === "string") {
+				optionalFragmentNames = [optionalFragmentNames];
 			}
 
-			Object.keys(Container.queries).forEach(function (queryName) {
-				if (optionalQueryNames.length && optionalQueryNames.indexOf(queryName) < 0) {
+			Object.keys(Container.fragments).forEach(function (fragmentName) {
+				if (optionalFragmentNames.length && optionalFragmentNames.indexOf(fragmentName) < 0) {
 					return;
 				}
 
-				var promise = _this.getQuery(
-					queryName, variables
-				).then(function (queryResult) {
-					var queryResults = {};
-					queryResults[queryName] = queryResult;
+				var promise = Container.getFragment(
+					fragmentName, variables
+				).then(function (fragmentResult) {
+					var fragmentResults = {};
+					fragmentResults[fragmentName] = fragmentResult;
 
-					return queryResults;
+					return fragmentResults;
 				});
 
 				promises.push(promise);
@@ -94,36 +77,45 @@ module.exports = function (Component, options) {
 
 			return promiseProxy.Promise.all(
 				promises
-			).then(function (promisedQueries) {
-				var queryResults = {};
+			).then(function (promisedFragments) {
+				var fetchedFragments = {};
 
-				promisedQueries.forEach(function (promisedQuery) {
-					if (typeof promisedQuery === "object") {
-						assign(queryResults, promisedQuery);
+				promisedFragments.forEach(function (promisedFragment) {
+					if (typeof promisedFragment === "object") {
+						assign(fetchedFragments, promisedFragment);
 					}
 				});
 
-				return queryResults;
+				return fetchedFragments;
 			});
 		},
-		forceFetch: function (nextParams, optionalQueryNames) {
+		/**
+		 * @returns {Promise|Boolean}
+		 */
+		forceFetch: function (nextVariables, optionalFragmentNames) {
 			var _this = this;
+
+			if (options.shouldContainerUpdate && Object.keys(nextVariables).length) {
+				if (!options.shouldContainerUpdate.call(this, nextVariables)) {
+					return false;
+				}
+			}
 
 			var promise = new promiseProxy.Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
 
-				assign(_this.currentVariables, nextParams);
-				promise = _this.getAllQueries(_this.currentVariables, optionalQueryNames);
+				assign(_this.variables, nextVariables || {});
+				promise = _this.getAllFragments(_this.variables, optionalFragmentNames);
 
-				promise.then(function (queryResults) {
+				promise.then(function (fetchedFragments) {
 					// See `isMounted` discussion at https://github.com/facebook/react/issues/2787
 					if (!_this.isMounted()) {
-						return queryResults;
+						return fetchedFragments;
 					}
 
 					try {
-						_this.setState(queryResults);
+						_this.setState(fetchedFragments);
 					}
 					catch (error) {
 						// Call to setState may fail if renderToString() was used.
@@ -132,33 +124,33 @@ module.exports = function (Component, options) {
 						}
 					}
 
-					return queryResults;
+					return fetchedFragments;
 				});
 
 				resolve(promise);
 			});
 
-			if (this.props.onQuery) {
-				this.props.onQuery.call(this, promise);
+			if (this.props.onFetch) {
+				this.props.onFetch.call(this, promise);
 			}
 
 			return promise;
 		},
 		/**
-		 * @returns {boolean} true if all queries have results.
+		 * @returns {Boolean} true if all queries have results.
 		 */
-		hasQueryResults: function () {
+		hasFetched: function () {
 			var state = this.state || {};
 			var props = this.props || {};
 
-			if (!Object.keys(Container.queries).length) {
+			if (!Object.keys(Container.fragments).length) {
 				return true;
 			}
 
-			for (var queryName in Container.queries) {
-				if (!Container.queries.hasOwnProperty(queryName) ||
-				    props.hasOwnProperty(queryName) ||
-				    state.hasOwnProperty(queryName)) {
+			for (var fragmentName in Container.fragments) {
+				if (!Container.fragments.hasOwnProperty(fragmentName) ||
+				    props.hasOwnProperty(fragmentName) ||
+				    state.hasOwnProperty(fragmentName)) {
 					continue;
 				}
 
@@ -168,19 +160,34 @@ module.exports = function (Component, options) {
 			return true;
 		},
 		/**
+		 */
+		componentWillMount: function () {
+			var externalVariables = this.props && this.props.variables || {};
+
+			this.variables = assign({}, Container.variables, externalVariables);
+			this.variables = Container.prepareVariables(this.variables);
+
+			if (!this.hasFetched()) {
+				this.forceFetch({});
+			}
+			else if (this.props.onFetch) {
+				this.props.onFetch.call(this, promiseProxy.Promise.resolve({}));
+			}
+		},
+		/**
 		 * @returns {ReactElement} or null
 		 */
 		render: function () {
 			var state     = this.state || {};
 			var props     = this.props || {};
 			var transmit  = {
-				variables:  this.currentVariables,
+				variables:  this.variables,
 				forceFetch: this.forceFetch,
-				onQuery:    undefined
+				onFetch:    undefined
 			};
 
-			// Query results must be guaranteed to render.
-			if (!this.hasQueryResults()) {
+			// Don't render without data.
+			if (!this.hasFetched()) {
 				return (typeof props.renderLoading === "function") ?
 				       props.renderLoading() :
 				       props.renderLoading || null;

@@ -5,7 +5,7 @@
 
 var React    = require("./react");
 var ReactDOM = require("./react-dom");
-var assign   = React.__spread;
+var assign   = require("./assign");
 
 /**
  * @function render
