@@ -30,16 +30,16 @@ const Newsfeed = React.createClass({
 	},
 	onLoadMore () {
 		/**
-		 * Call this.props.setQueryParams() to tell Transmit to query again.
+		 * Call this.props.transmit.setVariables() to tell Transmit to query again.
 		 */
-		this.props.setQueryParams({
+		this.props.transmit.setVariables({
 			currentNewsfeed:  this.props.newsfeed,
-			nextStoryId:      this.props.queryParams.nextStoryId + 1
+			nextStoryId:      this.props.transmit.variables.nextStoryId + 1
 		}).then((queryResults) => {
 			/**
 			 * This is optional. It allows this component to capture the Transmit query results.
  			 */
-			console.log("Newsfeed.setQueryParams: ", queryResults);
+			console.log("Newsfeed setVariables: ", queryResults);
 		});
 	}
 });
@@ -51,7 +51,7 @@ export default Transmit.createContainer(Newsfeed, {
 	/**
 	 * Default query params.
 	 */
-	queryParams: {
+	initialVariables: {
 		currentNewsfeed: [],
 		nextStoryId:     1
 	},
@@ -60,12 +60,12 @@ export default Transmit.createContainer(Newsfeed, {
 		 * The "newsfeed" query will concatenate the next Story to the current newsfeed, and returns
 		 * the updated newsfeed in a Promise.
 		 */
-		newsfeed (queryParams) {
+		newsfeed (variables) {
 			return (
 				Story.getQuery(
-					"story", {storyId: queryParams.nextStoryId}
+					"story", {storyId: variables.nextStoryId}
 				).then((nextStory) => {
-					return queryParams.currentNewsfeed.concat([nextStory]);
+					return variables.currentNewsfeed.concat([nextStory]);
 				})
 			);
 		}

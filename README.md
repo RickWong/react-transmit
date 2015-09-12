@@ -45,12 +45,12 @@ const Newsfeed = React.createClass({
 
 // Higher-order component that will do queries for the above React component.
 export default Transmit.createContainer(Newsfeed, {
-	queryParams: {
+	initialVariables: {
 		count: 10  // Default query params.
 	},
 	queries: {
 		// Query names become the Transmit prop names. 
-		stories (queryParams) {
+		stories (variables) {
 			// This "stories" query returns a Promise composed of 3 other Promises.
 			return Promise.all([
 				Story.getQuery("story", {storyId: 1}),
@@ -78,8 +78,8 @@ const Story = React.createClass({
 export default Transmit.createContainer(Story, {
 	queries: {
 		// This "story" query returns a Fetch API promise.
-		story (queryParams) {
-			return fetch("https://some.api/stories/" + queryParams.storyId).then(resp => resp.json());
+		story (variables) {
+			return fetch("https://some.api/stories/" + variables.storyId).then(resp => resp.json());
 		}
 	}
 });

@@ -29,23 +29,23 @@ export default Transmit.createContainer(Like, {
 	/**
 	 * Default query params.
 	 */
-	queryParams: {
+	initialVariables: {
 		user: null
 	},
 	queries: {
 		/**
 		 * The "like" query maps a stargazer into a like.
 		 */
-		like (queryParams) {
-			if (!queryParams.user) {
-				throw new Error("queryParams.user required");
+		like (variables) {
+			if (!variables.user) {
+				throw new Error("variables.user required");
 			}
 
 			return Promise.resolve({
-				name: queryParams.user.login,
-				uri: queryParams.user.html_url,
+				name: variables.user.login,
+				uri: variables.user.html_url,
 				profile_picture: {
-					uri: `${queryParams.user.avatar_url}&s=20`
+					uri: `${variables.user.avatar_url}&s=20`
 				}
 			});
 		}
