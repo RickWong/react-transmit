@@ -16,19 +16,19 @@ module.exports = function (Component, options) {
 	var Container = React.createClass({
 		displayName: (Component.displayName || Component.name) + "Container",
 		propTypes: {
-			variables: React.PropTypes.object,
-			onQuery:   React.PropTypes.func,
-			emptyView: React.PropTypes.oneOfType([
+			variables:     React.PropTypes.object,
+			onQuery:       React.PropTypes.func,
+			renderLoading: React.PropTypes.oneOfType([
 				React.PropTypes.element,
 				React.PropTypes.func
 	        ])
 		},
 		statics: {
-			variables: options.initialVariables || {},
+			variables:        options.initialVariables || {},
 			prepareVariables: options.prepareVariables || function (v) {return v;},
-			queries:   options.queries || {},
-			fragments: options.fragments || {},
-			getFragment: function (fragmentName, variables) {
+			queries:          options.queries || {},
+			fragments:        options.fragments || {},
+			getFragment:      function (fragmentName, variables) {
 				if (!Container.fragments[fragmentName]) {
 					throw new Error(Component.displayName + " has no '" + fragmentName +"' fragment")
 				}
@@ -52,7 +52,7 @@ module.exports = function (Component, options) {
 				this.props.onQuery.call(this, promiseProxy.Promise.resolve({}));
 			}
 		},
-		getQuery:  function (queryName, variables) {
+		getQuery: function (queryName, variables) {
 			if (!Container.queries[queryName]) {
 				throw new Error(Component.displayName + " has no '" + queryName +"' query")
 			}
@@ -181,9 +181,9 @@ module.exports = function (Component, options) {
 
 			// Query results must be guaranteed to render.
 			if (!this.hasQueryResults()) {
-				return (typeof props.emptyView === "function") ?
-				       props.emptyView() :
-				       props.emptyView || null;
+				return (typeof props.renderLoading === "function") ?
+				       props.renderLoading() :
+				       props.renderLoading || null;
 			}
 
 			return React.createElement(

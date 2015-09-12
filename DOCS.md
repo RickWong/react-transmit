@@ -62,7 +62,7 @@ Transmit's `createContainer()` method describes a new React component, a so-call
 * Optional.
 * Overwrites the default `initialVariables` defined with `createContainer()`.
 
-#### `emptyView : ReactElement`
+#### `renderLoading : ReactElement or Function`
 
 * Optional. The container will render this while the queries are not yet resolved.
 * Defaults to `null` (React) or `<View />` (React Native).
