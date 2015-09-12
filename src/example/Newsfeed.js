@@ -62,7 +62,7 @@ export default Transmit.createContainer(Newsfeed, {
 		 */
 		newsfeed (variables) {
 			return (
-				Story.getQuery(
+				Story.getFragment(
 					"story", {storyId: variables.nextStoryId}
 				).then((nextStory) => {
 					return variables.currentNewsfeed.concat([nextStory]);

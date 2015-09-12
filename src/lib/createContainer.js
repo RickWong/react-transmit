@@ -26,58 +26,16 @@ module.exports = function (Component, options) {
 		statics: {
 			variables: options.initialVariables || {},
 			queries:   options.queries || {},
-			getQuery:  function (queryName, variables) {
-				if (!Container.queries[queryName]) {
-					throw new Error(Component.displayName + " has no '" + queryName +"' query")
+			fragments: options.fragments || {},
+			getFragment: function (fragmentName, variables) {
+				if (!Container.fragments[fragmentName]) {
+					throw new Error(Component.displayName + " has no '" + fragmentName +"' fragment")
 				}
 
 				variables = variables || {};
 				assign(variables, Container.variables, assign({}, variables));
 
-				return Container.queries[queryName](variables);
-			},
-			getAllQueries: function (variables, optionalQueryNames) {
-				var promises = [];
-				optionalQueryNames = optionalQueryNames || [];
-
-				if (typeof optionalQueryNames === "string") {
-					optionalQueryNames = [optionalQueryNames];
-				}
-
-				Object.keys(Container.queries).forEach(function (queryName) {
-					if (optionalQueryNames.length && optionalQueryNames.indexOf(queryName) < 0) {
-						return;
-					}
-
-					var promise = Container.getQuery(
-						queryName, variables
-					).then(function (queryResult) {
-						var queryResults = {};
-						queryResults[queryName] = queryResult;
-
-						return queryResults;
-					});
-
-					promises.push(promise);
-				});
-
-				if (!promises.length) {
-					promises.push(promiseProxy.Promise.resolve(true));
-				}
-
-				return promiseProxy.Promise.all(
-					promises
-				).then(function (promisedQueries) {
-					var queryResults = {};
-
-					promisedQueries.forEach(function (promisedQuery) {
-						if (typeof promisedQuery === "object") {
-							assign(queryResults, promisedQuery);
-						}
-					});
-
-					return queryResults;
-				});
+				return Container.fragments[fragmentName](variables);
 			}
 		},
 		componentWillMount: function () {
@@ -92,6 +50,60 @@ module.exports = function (Component, options) {
 				this.props.onQuery.call(this, promiseProxy.Promise.resolve({}));
 			}
 		},
+		getQuery:  function (queryName, variables) {
+			if (!Container.queries[queryName]) {
+				throw new Error(Component.displayName + " has no '" + queryName +"' query")
+			}
+
+			variables = variables || {};
+			assign(variables, Container.variables, assign({}, variables));
+
+			return Container.queries[queryName](variables);
+		},
+		getAllQueries: function (variables, optionalQueryNames) {
+			var _this = this;
+			var promises = [];
+			optionalQueryNames = optionalQueryNames || [];
+
+			if (typeof optionalQueryNames === "string") {
+				optionalQueryNames = [optionalQueryNames];
+			}
+
+			Object.keys(Container.queries).forEach(function (queryName) {
+				if (optionalQueryNames.length && optionalQueryNames.indexOf(queryName) < 0) {
+					return;
+				}
+
+				var promise = _this.getQuery(
+					queryName, variables
+				).then(function (queryResult) {
+					var queryResults = {};
+					queryResults[queryName] = queryResult;
+
+					return queryResults;
+				});
+
+				promises.push(promise);
+			});
+
+			if (!promises.length) {
+				promises.push(promiseProxy.Promise.resolve(true));
+			}
+
+			return promiseProxy.Promise.all(
+				promises
+			).then(function (promisedQueries) {
+				var queryResults = {};
+
+				promisedQueries.forEach(function (promisedQuery) {
+					if (typeof promisedQuery === "object") {
+						assign(queryResults, promisedQuery);
+					}
+				});
+
+				return queryResults;
+			});
+		},
 		forceFetch: function (nextParams, optionalQueryNames) {
 			var _this = this;
 
@@ -100,7 +112,7 @@ module.exports = function (Component, options) {
 				var promise;
 
 				assign(_this.currentVariables, nextParams);
-				promise = Container.getAllQueries(_this.currentVariables, optionalQueryNames);
+				promise = _this.getAllQueries(_this.currentVariables, optionalQueryNames);
 
 				promise.then(function (queryResults) {
 					// See `isMounted` discussion at https://github.com/facebook/react/issues/2787
@@ -160,9 +172,9 @@ module.exports = function (Component, options) {
 			var state     = this.state || {};
 			var props     = this.props || {};
 			var transmit  = {
-				variables:    this.currentVariables,
+				variables:  this.currentVariables,
 				forceFetch: this.forceFetch,
-				onQuery:      undefined
+				onQuery:    undefined
 			};
 
 			// Query results must be guaranteed to render.

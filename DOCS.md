@@ -69,17 +69,10 @@ Transmit's `createContainer()` method describes a new React component, a so-call
 
 ### Static Methods
 
-#### `getAllQueries([variables [, queryName|queryNames]]) : Promise `
+#### `getFragment(fragmentName [, variables]) : Promise`
 
-* Performs all queries and returns a composed Promise.
-* Optionally specify a string or string-array to only perform a specific query/queries.
-* Can be used to resolve a component's queries before rendering the component.
-* [Example usage](https://github.com/RickWong/react-transmit/issues/4#issuecomment-87233975)
-
-#### `getQuery(queryName [, variables]) : Promise`
-
-* Performs a single query and returns its Promise.
-* This is useful to compose a parent query that resolves child components' queries.
+* Retrieve a single fragment and returns a Promise.
+* This is useful to compose a parent query that resolves child components' fragments.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/master/src/example/Newsfeed.js#L65-L69)
 
 
