@@ -25,6 +25,7 @@ module.exports = function (Component, options) {
 		},
 		statics: {
 			variables: options.initialVariables || {},
+			prepareVariables: options.prepareVariables || function (v) {return v;},
 			queries:   options.queries || {},
 			fragments: options.fragments || {},
 			getFragment: function (fragmentName, variables) {
@@ -42,6 +43,7 @@ module.exports = function (Component, options) {
 			var externalVariables = this.props && this.props.variables || {};
 
 			this.currentVariables = assign({}, Container.variables, externalVariables);
+			this.currentVariables = Container.prepareVariables(this.currentVariables);
 
 			if (!this.hasQueryResults()) {
 				this.forceFetch({});

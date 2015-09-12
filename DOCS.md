@@ -16,7 +16,7 @@ The methods are named after their React / Relay counterparts. Their functionalit
 
 * Creates a container that wraps the original ReactClass.
 * The container performs queries and passes query results as props to the original ReactClass.
-* Possible `options` are the `initialVariables` and the `queries` definitions.
+* Possible `options` are the `initialVariables`, `prepareVariables` function, and the `queries` or `fragments` definitions.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L50-L73)
 
 #### `render(ReactClass, optionalProps, targetDOMNode, completeCallback) : void`
