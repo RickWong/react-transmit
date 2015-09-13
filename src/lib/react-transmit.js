@@ -5,6 +5,7 @@
 
 module.exports = {
 	isContainer:           require("./isContainer"),
+	isRootContainer:       require("./isRootContainer"),
 	createContainer:       require("./createContainer"),
 	render:                require("./render"),
 	renderToString:        require("./renderToString"),
