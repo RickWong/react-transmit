@@ -4,17 +4,17 @@
 
 # React Transmit
 
-Relay-inspired library based on Promises instead of GraphQL.
+[Relay](https://facebook.github.io/relay/)-inspired library based on Promises instead of GraphQL.
 
 Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.io/react/blog/2015/03/19/building-the-facebook-news-feed-with-relay.html) (React blog)
 
 ## Features
 
-- Implements the official Relay API methods.
-- Higher-order component (HOC) syntax just like Relay.
-- Declare composable Promise-based queries in HOCs.
+- API similar to the official Relay API, adapted for Promises.
+- Higher-order Component (HoC) syntax is great for functional-style React.
+- Composable Promise-based queries using fragments.
 - Isomorphic architecture supports server-side rendering.
-- Works with React 0.12 and 0.13, and React Native!
+- Also works with React Native!
 
 ## Installation
 
