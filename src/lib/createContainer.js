@@ -3,9 +3,10 @@
  */
 "use strict";
 
-var promiseProxy = require("./promiseProxy");
-var React        = require("./react");
-var assign       = require("./assign");
+var isRootContainer = require("./isRootContainer");
+var promiseProxy    = require("./promiseProxy");
+var React           = require("./react");
+var assign          = require("./assign");
 
 /**
  * @function createContainer
@@ -25,6 +26,7 @@ module.exports = function (Component, options) {
 			])
 		},
 		statics: {
+			isRootContainer:  !!options.initialVariables,
 			variables:        options.initialVariables || {},
 			prepareVariables: options.prepareVariables || function (v) { return v; },
 			fragments:        options.fragments || {},
@@ -92,6 +94,7 @@ module.exports = function (Component, options) {
 		 */
 		forceFetch: function (nextVariables, optionalFragmentNames) {
 			var _this = this;
+			nextVariables = nextVariables || {};
 
 			if (options.shouldContainerUpdate && Object.keys(nextVariables).length) {
 				if (!options.shouldContainerUpdate.call(this, nextVariables)) {
@@ -103,7 +106,7 @@ module.exports = function (Component, options) {
 				var props = _this.props || {};
 				var promise;
 
-				assign(_this.variables, nextVariables || {});
+				assign(_this.variables, nextVariables);
 				promise = Container.getAllFragments(_this.variables, optionalFragmentNames);
 
 				promise.then(function (fetchedFragments) {
@@ -166,10 +169,18 @@ module.exports = function (Component, options) {
 			this.variables = Container.prepareVariables(this.variables);
 
 			if (!this.hasFetched()) {
-				this.forceFetch({});
+				this.forceFetch();
 			}
 			else if (this.props.onFetch) {
 				this.props.onFetch.call(this, promiseProxy.Promise.resolve({}));
+			}
+		},
+		/**
+		 *
+		 */
+		componentWillReceiveProps: function (nextProps) {
+			if (isRootContainer(Container)) {
+				this.forceFetch();
 			}
 		},
 		/**

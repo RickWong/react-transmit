@@ -3,11 +3,12 @@
  */
 "use strict";
 
+var isContainer = require("./isContainer");
+
 /**
  * @function isContainer
  */
 module.exports = function (Container) {
-	return !!(Container &&
-	          Container.getFragment &&
-	          Container.getAllFragments);
+	return !!(isContainer(Container) &&
+	          Container.isRootContainer);
 };
