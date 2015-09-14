@@ -10,6 +10,7 @@ module.exports = {
 	render:                require("./render"),
 	renderToString:        require("./renderToString"),
 	injectIntoMarkup:      require("./injectIntoMarkup"),
+	takeFromMarkup:        require("./takeFromMarkup"),
 	setPromiseConstructor: function (PromiseConstructor) {
 		require("./promiseProxy").Promise = PromiseConstructor;
 	}
