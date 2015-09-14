@@ -4,14 +4,15 @@
 "use strict";
 
 module.exports = {
-	isContainer:           require("./isContainer"),
-	isRootContainer:       require("./isRootContainer"),
-	createContainer:       require("./createContainer"),
-	render:                require("./render"),
-	renderToString:        require("./renderToString"),
-	injectIntoMarkup:      require("./injectIntoMarkup"),
-	takeFromMarkup:        require("./takeFromMarkup"),
-	setPromiseConstructor: function (PromiseConstructor) {
+	createContainer:              require("./createContainer"),
+	injectIntoMarkup:             require("./injectIntoMarkup"),
+	isContainer:                  require("./isContainer"),
+	isRootContainer:              require("./isRootContainer"),
+	render:                       require("./render"),
+	renderRoutingContextToString: require("./renderRoutingContextToString"),
+	renderToString:               require("./renderToString"),
+	takeFromMarkup:               require("./takeFromMarkup"),
+	setPromiseConstructor:        function (PromiseConstructor) {
 		require("./promiseProxy").Promise = PromiseConstructor;
 	}
 };
