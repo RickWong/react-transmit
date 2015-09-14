@@ -3,19 +3,16 @@
  */
 "use strict";
 
-var React    = require("./react");
-var ReactDOM = require("./react-dom");
-var assign   = require("./assign");
+var React          = require("./react");
+var ReactDOM       = require("./react-dom");
+var assign         = require("./assign");
+var takeFromMarkup = require("./takeFromMarkup");
 
 /**
  * @function render
  */
 module.exports = function (Component, props, targetDOMNode, callback) {
-	var myProps = assign({}, props, window.__reactTransmitPacket || {});
-
-	if (window.__reactTransmitPacket) {
-		delete window.__reactTransmitPacket;
-	}
+	var myProps = assign({}, props, takeFromMarkup());
 
 	ReactDOM.render(React.createElement(Component, myProps), targetDOMNode, callback);
 };
