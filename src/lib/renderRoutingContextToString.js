@@ -7,15 +7,15 @@ var assign          = require("./assign");
 var isRootContainer = require("./isRootContainer");
 var promiseProxy    = require("./promiseProxy");
 var React           = require("./react");
-var ReactDOM        = require("./react-dom");
+var ReactDOM        = require("./react-dom-server");
 
 /**
  * @function renderRoutingContextToString
  */
 module.exports = function (RoutingContext, renderProps) {
-	var waitForFetch = false;
-
 	return new promiseProxy.Promise(function (resolve, reject) {
+		var waitForFetch = false;
+
 		renderProps.createElement = function (Component, props) {
 			if (isRootContainer(Component)) {
 				waitForFetch = true;
@@ -26,7 +26,12 @@ module.exports = function (RoutingContext, renderProps) {
 							return React.createElement(Component, assign(props, reactData));
 						};
 
-						resolve(ReactDOM.renderToString(React.createElement(RoutingContext, renderProps)), reactData);
+						var reactString = ReactDOM.renderToString(React.createElement(RoutingContext, renderProps));
+
+						resolve({
+							reactString: reactString,
+							reactData:   reactData
+						});
 					}).catch(function (error) {
 						reject(error);
 					});

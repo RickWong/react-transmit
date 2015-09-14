@@ -3,10 +3,10 @@
  */
 "use strict";
 
+var assign       = require("./assign");
 var promiseProxy = require("./promiseProxy");
 var React        = require("./react");
-var ReactDOM     = require("./react-dom");
-var assign       = require("./assign");
+var ReactDOM     = require("./react-dom-server");
 
 /**
  * @function renderToString
