@@ -3,16 +3,14 @@
  */
 "use strict";
 
-var assign = require("./assign");
-
 /**
  * @function takeFromMarkup
  */
 module.exports = function () {
-	var packet = {};
+	var packet = [];
 
 	if (typeof window !== "undefined" && window.__reactTransmitPacket) {
-		assign(packet, window.__reactTransmitPacket || {});
+		packet = (window.__reactTransmitPacket || []).slice(0);
 		delete window.__reactTransmitPacket;
 	}
 
