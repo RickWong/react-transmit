@@ -3,16 +3,33 @@
  */
 "use strict";
 
-var React          = require("./react");
-var ReactDOM       = require("./react-dom");
-var assign         = require("./assign");
-var takeFromMarkup = require("./takeFromMarkup");
+var assign                = require("./assign");
+var isRootContainer       = require("./isRootContainer");
+var overrideCreateElement = require("./overrideCreateElement");
+var React                 = require("./react");
+var ReactDOM              = require("./react-dom");
+var takeFromMarkup        = require("./takeFromMarkup");
+
+var reactData = takeFromMarkup();
 
 /**
  * @function render
  */
 module.exports = function (Component, props, targetDOMNode, callback) {
-	var myProps = assign({}, props, takeFromMarkup());
+	var fetchedFragments = reactData.slice(0);
 
-	ReactDOM.render(React.createElement(Component, myProps), targetDOMNode, callback);
+	overrideCreateElement(
+		function (originalCreateElement, type, props, children) {
+			var args = Array.prototype.slice.call(arguments, 1);
+
+			if (isRootContainer(type)) {
+				assign(props, fetchedFragments.pop());
+			}
+
+			return originalCreateElement.apply(null, args);
+		},
+		function () {
+			ReactDOM.render(React.createElement(Component, props), targetDOMNode, callback);
+		}
+	);
 };
