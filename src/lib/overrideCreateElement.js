@@ -3,21 +3,20 @@
  */
 "use strict";
 
-var ReactElement = require("./ReactElement");
+var React = require("./react");
 
 /**
  * @function overrideCreateElement
  */
 module.exports = function (replacement, callback) {
-	var originalCreateElement = ReactElement.createElement;
+	var originalCreateElement = React.createElement;
 
-	ReactElement.createElement = function (t, p, c) {
-		var args = Array.prototype.slice.call(arguments);
-
+	React.createElement = function (t, p, c) {
+		var args = [].slice.call(arguments);
 		return replacement.apply(null, [originalCreateElement].concat(args));
 	};
 
 	callback();
 
-	ReactElement.createElement = originalCreateElement;
+	React.createElement = originalCreateElement;
 };
