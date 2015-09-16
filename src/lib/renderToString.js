@@ -24,7 +24,7 @@ module.exports = function (Component, props) {
 
 		overrideCreateElement(
 			function (originalCreateElement, type, props, children) {
-				var args = Array.prototype.slice.call(arguments, 1);
+				var args = [].slice.call(arguments, 1);
 
 				if (isRootContainer(type)) {
 					props.onFetch = function (promise) {
@@ -35,12 +35,13 @@ module.exports = function (Component, props) {
 				return originalCreateElement.apply(null, args);
 			},
 			function () {
+				assign(myProps, {createElement: React.createElement});
 				reactString = ReactDOM.renderToString(React.createElement(Component, myProps));
 			}
 		);
 
 		if (!promises.length) {
-			resolve({reactString: reactString, reactData: {}});
+			resolve({reactString: reactString, reactData: []});
 		}
 		else {
 			promiseProxy.Promise.all(promises).then(function (fetchedFragments) {
@@ -49,7 +50,7 @@ module.exports = function (Component, props) {
 
 				overrideCreateElement(
 					function (originalCreateElement, type, props, children) {
-						var args = Array.prototype.slice.call(arguments, 1);
+						var args = [].slice.call(arguments, 1);
 
 						if (isRootContainer(type) && fetchedFragments.length) {
 							assign(props, fetchedFragments.pop());
@@ -58,6 +59,7 @@ module.exports = function (Component, props) {
 						return originalCreateElement.apply(null, args);
 					},
 					function () {
+						assign(myProps, {createElement: React.createElement});
 						reactString = ReactDOM.renderToString(React.createElement(Component, myProps));
 					}
 				);
