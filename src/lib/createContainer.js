@@ -180,7 +180,7 @@ module.exports = function (Component, options) {
 		 */
 		componentWillReceiveProps: function (nextProps) {
 			if (isRootContainer(Container)) {
-				this.forceFetch();
+				this.forceFetch(nextProps.variables);
 			}
 		},
 		/**
