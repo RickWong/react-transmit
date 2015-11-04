@@ -15,16 +15,12 @@ config.output.hotUpdateMainFilename = "update/[hash]/update.json";
 config.output.hotUpdateChunkFilename = "update/[hash]/[id].update.js";
 
 config.plugins = [
-	new webpack.HotModuleReplacementPlugin(),
-	new webpack.NoErrorsPlugin()
+	new webpack.HotModuleReplacementPlugin()
 ];
 
-config.module = {
-	loaders: [
-		{include: /\.json$/, loaders: ["json-loader"]},
-		{include: /\.js$/, loaders: ["react-hot", "babel-loader?stage=1&optional=runtime"], exclude: /(node_modules|lib)/}
-	]
-};
+config.module.postLoaders = [
+	{test: /\.js$/, loaders: ["react-hot"], exclude: /node_modules/}
+];
 
 config.devServer = {
 	publicPath:  "http://localhost:8080/dist/",

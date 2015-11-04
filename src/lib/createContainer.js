@@ -89,6 +89,18 @@ module.exports = function (Component, options) {
 				});
 			},
 		},
+		componentDidMount: function () {
+			// Keep track of the mounted state manually, because the official isMounted() method
+			// returns true when using renderToString() from react-dom/server.
+			this._mounted = true;
+		},
+		componentWillUnmount: function () {
+			this._mounted = false;
+		},
+		_isMounted: function () {
+			// See the official `isMounted` discussion at https://github.com/facebook/react/issues/2787
+			return !!this._mounted;
+		},
 		/**
 		 * @returns {Promise|Boolean}
 		 */
@@ -110,8 +122,7 @@ module.exports = function (Component, options) {
 				promise = Container.getAllFragments(_this.variables, optionalFragmentNames);
 
 				promise.then(function (fetchedFragments) {
-					// See `isMounted` discussion at https://github.com/facebook/react/issues/2787
-					if (!_this.isMounted()) {
+					if (!_this._isMounted()) {
 						return fetchedFragments;
 					}
 
