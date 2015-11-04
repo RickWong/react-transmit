@@ -4,17 +4,17 @@
 
 # React Transmit
 
-Relay-inspired library based on Promises instead of GraphQL.
+[Relay](https://facebook.github.io/relay/)-inspired library based on Promises instead of GraphQL.
 
 Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.io/react/blog/2015/03/19/building-the-facebook-news-feed-with-relay.html) (React blog)
 
 ## Features
 
-- Implements the official Relay API methods.
-- Higher-order component (HOC) syntax just like Relay.
-- Declare composable Promise-based queries in HOCs.
+- API similar to the official Relay API, adapted for Promises.
+- Higher-order Component (HoC) syntax is great for functional-style React.
+- Composable Promise-based queries using fragments.
 - Isomorphic architecture supports server-side rendering.
-- Works with React 0.12 and 0.13, and React Native!
+- Also works with React Native!
 
 ## Installation
 
@@ -37,25 +37,25 @@ import Story    from "./Story";
 
 const Newsfeed = React.createClass({
 	render () {
-		const stories = this.props.stories;  // Transmit props are guaranteed.
-		
-		return stories.map((story) => <Story story={story} />); // Pass down props.
+		const {stories} = this.props;  // Fragments are guaranteed.
+
+		return stories.map((story) => <Story story={story} />);
 	}
 });
 
-// Higher-order component that will do queries for the above React component.
+// Higher-order component that will fetch data for the above React component.
 export default Transmit.createContainer(Newsfeed, {
-	queryParams: {
-		count: 10  // Default query params.
+	initialVariables: {
+		count: 10  // Default variable.
 	},
-	queries: {
-		// Query names become the Transmit prop names. 
-		stories (queryParams) {
+	fragments: {
+		// Fragment names become the Transmit prop names.
+		stories ({count}) {
 			// This "stories" query returns a Promise composed of 3 other Promises.
 			return Promise.all([
-				Story.getQuery("story", {storyId: 1}),
-				Story.getQuery("story", {storyId: 2}),
-				Story.getQuery("story", {storyId: 3})
+				Story.getFragment("story", {storyId: 1}),
+				Story.getFragment("story", {storyId: 2}),
+				Story.getFragment("story", {storyId: 3})
 			]);
 		}
 	}
@@ -69,17 +69,17 @@ import Transmit from "react-transmit";  // Import Transmit.
 
 const Story = React.createClass({
 	render () {
-		const story = this.props.story; // Passed down props.
+		const {story} = this.props; // Fragments are guaranteed.
 		
 		return <p>{story.content}</p>;
 	}
 });
 
 export default Transmit.createContainer(Story, {
-	queries: {
-		// This "story" query returns a Fetch API promise.
-		story (queryParams) {
-			return fetch("https://some.api/stories/" + queryParams.storyId).then(resp => resp.json());
+	fragments: {
+		// This "story" fragment returns a Fetch API promise.
+		story ({storyId}) {
+			return fetch("https://some.api/stories/" + storyId).then((res) => res.json());
 		}
 	}
 });

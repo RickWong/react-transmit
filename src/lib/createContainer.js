@@ -3,12 +3,14 @@
  */
 "use strict";
 
-var promiseProxy = require("./promiseProxy");
-var React        = require("./react");
-var assign       = React.__spread;
+var isRootContainer = require("./isRootContainer");
+var promiseProxy    = require("./promiseProxy");
+var React           = require("./react");
+var assign          = require("./assign");
 
 /**
  * @function createContainer
+ * @returns {ReactClass}
  */
 module.exports = function (Component, options) {
 	options = arguments[1] || {};
@@ -16,46 +18,53 @@ module.exports = function (Component, options) {
 	var Container = React.createClass({
 		displayName: (Component.displayName || Component.name) + "Container",
 		propTypes: {
-			queryParams: React.PropTypes.object,
-			onQuery:     React.PropTypes.func,
-			emptyView:   React.PropTypes.oneOfType([
+			variables:             React.PropTypes.object,
+			onFetch:               React.PropTypes.func,
+			renderLoading:         React.PropTypes.oneOfType([
 				React.PropTypes.element,
 				React.PropTypes.func
-	        ])
+			])
 		},
 		statics: {
-			queryParams: options.queryParams || {},
-			queries:     options.queries || {},
-			getQuery:    function (queryName, queryParams) {
-				if (!Container.queries[queryName]) {
-					throw new Error(Component.displayName + " has no '" + queryName +"' query")
+			isRootContainer:  !!options.initialVariables,
+			variables:        options.initialVariables || {},
+			prepareVariables: options.prepareVariables || function (v) { return v; },
+			fragments:        options.fragments || {},
+			/**
+			 * @returns {Promise}
+			 */
+			getFragment:      function (fragmentName, variables) {
+				if (!Container.fragments[fragmentName]) {
+					throw new Error(Component.displayName + " has no '" + fragmentName +"' fragment")
 				}
 
-				queryParams = queryParams || {};
-				assign(queryParams, Container.queryParams, assign({}, queryParams));
+				variables = assign({}, Container.variables, variables || {});
 
-				return Container.queries[queryName](queryParams);
+				return Container.fragments[fragmentName](variables);
 			},
-			getAllQueries: function (queryParams, optionalQueryNames) {
+			/**
+			 * @returns {Promise}
+			 */
+			getAllFragments: function (variables, optionalFragmentNames) {
 				var promises = [];
-				optionalQueryNames = optionalQueryNames || [];
+				optionalFragmentNames = optionalFragmentNames || [];
 
-				if (typeof optionalQueryNames === "string") {
-					optionalQueryNames = [optionalQueryNames];
+				if (typeof optionalFragmentNames === "string") {
+					optionalFragmentNames = [optionalFragmentNames];
 				}
 
-				Object.keys(Container.queries).forEach(function (queryName) {
-					if (optionalQueryNames.length && optionalQueryNames.indexOf(queryName) < 0) {
+				Object.keys(Container.fragments).forEach(function (fragmentName) {
+					if (optionalFragmentNames.length && optionalFragmentNames.indexOf(fragmentName) < 0) {
 						return;
 					}
 
-					var promise = Container.getQuery(
-						queryName, queryParams
-					).then(function (queryResult) {
-						var queryResults = {};
-						queryResults[queryName] = queryResult;
+					var promise = Container.getFragment(
+						fragmentName, variables
+					).then(function (fragmentResult) {
+						var fragmentResults = {};
+						fragmentResults[fragmentName] = fragmentResult;
 
-						return queryResults;
+						return fragmentResults;
 					});
 
 					promises.push(promise);
@@ -67,49 +76,47 @@ module.exports = function (Component, options) {
 
 				return promiseProxy.Promise.all(
 					promises
-				).then(function (promisedQueries) {
-					var queryResults = {};
+				).then(function (promisedFragments) {
+					var fetchedFragments = {};
 
-					promisedQueries.forEach(function (promisedQuery) {
-						if (typeof promisedQuery === "object") {
-							assign(queryResults, promisedQuery);
+					promisedFragments.forEach(function (promisedFragment) {
+						if (typeof promisedFragment === "object") {
+							assign(fetchedFragments, promisedFragment);
 						}
 					});
 
-					return queryResults;
+					return fetchedFragments;
 				});
-			}
+			},
 		},
-		componentWillMount: function () {
-			var externalQueryParams = this.props && this.props.queryParams || {};
-
-			this.currentParams = assign({}, Container.queryParams, externalQueryParams);
-
-			if (!this.hasQueryResults()) {
-				this.setQueryParams({});
-			}
-			else if (this.props.onQuery) {
-				this.props.onQuery.call(this, promiseProxy.Promise.resolve({}));
-			}
-		},
-		setQueryParams: function (nextParams, optionalQueryNames) {
+		/**
+		 * @returns {Promise|Boolean}
+		 */
+		forceFetch: function (nextVariables, optionalFragmentNames) {
 			var _this = this;
+			nextVariables = nextVariables || {};
+
+			if (options.shouldContainerUpdate && Object.keys(nextVariables).length) {
+				if (!options.shouldContainerUpdate.call(this, nextVariables)) {
+					return false;
+				}
+			}
 
 			var promise = new promiseProxy.Promise(function (resolve, reject) {
 				var props = _this.props || {};
 				var promise;
 
-				assign(_this.currentParams, nextParams);
-				promise = Container.getAllQueries(_this.currentParams, optionalQueryNames);
+				assign(_this.variables, nextVariables);
+				promise = Container.getAllFragments(_this.variables, optionalFragmentNames);
 
-				promise.then(function (queryResults) {
+				promise.then(function (fetchedFragments) {
 					// See `isMounted` discussion at https://github.com/facebook/react/issues/2787
 					if (!_this.isMounted()) {
-						return queryResults;
+						return fetchedFragments;
 					}
 
 					try {
-						_this.setState(queryResults);
+						_this.setState(fetchedFragments);
 					}
 					catch (error) {
 						// Call to setState may fail if renderToString() was used.
@@ -118,33 +125,33 @@ module.exports = function (Component, options) {
 						}
 					}
 
-					return queryResults;
+					return fetchedFragments;
 				});
 
 				resolve(promise);
 			});
 
-			if (this.props.onQuery) {
-				this.props.onQuery.call(this, promise);
+			if (this.props.onFetch) {
+				this.props.onFetch.call(this, promise);
 			}
 
 			return promise;
 		},
 		/**
-		 * @returns {boolean} true if all queries have results.
+		 * @returns {Boolean} true if all queries have results.
 		 */
-		hasQueryResults: function () {
+		hasFetched: function () {
 			var state = this.state || {};
 			var props = this.props || {};
 
-			if (!Object.keys(Container.queries).length) {
+			if (!Object.keys(Container.fragments).length) {
 				return true;
 			}
 
-			for (var queryName in Container.queries) {
-				if (!Container.queries.hasOwnProperty(queryName) ||
-				    props.hasOwnProperty(queryName) ||
-				    state.hasOwnProperty(queryName)) {
+			for (var fragmentName in Container.fragments) {
+				if (!Container.fragments.hasOwnProperty(fragmentName) ||
+				    props.hasOwnProperty(fragmentName) ||
+				    state.hasOwnProperty(fragmentName)) {
 					continue;
 				}
 
@@ -154,27 +161,50 @@ module.exports = function (Component, options) {
 			return true;
 		},
 		/**
+		 */
+		componentWillMount: function () {
+			var externalVariables = this.props && this.props.variables || {};
+
+			this.variables = assign({}, Container.variables, externalVariables);
+			this.variables = Container.prepareVariables(this.variables);
+
+			if (!this.hasFetched()) {
+				this.forceFetch();
+			}
+			else if (this.props.onFetch) {
+				this.props.onFetch.call(this, promiseProxy.Promise.resolve({}));
+			}
+		},
+		/**
+		 *
+		 */
+		componentWillReceiveProps: function (nextProps) {
+			if (isRootContainer(Container)) {
+				this.forceFetch(nextProps.variables);
+			}
+		},
+		/**
 		 * @returns {ReactElement} or null
 		 */
 		render: function () {
 			var state     = this.state || {};
 			var props     = this.props || {};
-			var utilProps = {
-				queryParams:    this.currentParams,
-				setQueryParams: this.setQueryParams,
-				onQuery:        undefined
+			var transmit  = {
+				variables:  this.variables,
+				forceFetch: this.forceFetch,
+				onFetch:    undefined
 			};
 
-			// Query results must be guaranteed to render.
-			if (!this.hasQueryResults()) {
-				return (typeof props.emptyView === "function") ?
-				       props.emptyView() :
-				       props.emptyView || React.createElement(React.View);
+			// Don't render without data.
+			if (!this.hasFetched()) {
+				return (typeof props.renderLoading === "function") ?
+				       props.renderLoading() :
+				       props.renderLoading || null;
 			}
 
 			return React.createElement(
 				Component,
-				assign({}, props, state, utilProps)
+				assign({}, props, state, {transmit: transmit})
 			);
 		}
 	});

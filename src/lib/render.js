@@ -3,18 +3,34 @@
  */
 "use strict";
 
-var React  = require("./react");
-var assign = React.__spread;
+var assign                = require("./assign");
+var isRootContainer       = require("./isRootContainer");
+var overrideCreateElement = require("./overrideCreateElement");
+var React                 = require("./react");
+var ReactDOM              = require("./react-dom");
+var takeFromMarkup        = require("./takeFromMarkup");
+
+var reactData = takeFromMarkup();
 
 /**
  * @function render
  */
 module.exports = function (Component, props, targetDOMNode, callback) {
-	var myProps = assign({}, props, window.__reactTransmitPacket || {});
+	var fetchedFragments = reactData;
 
-	if (window.__reactTransmitPacket) {
-		delete window.__reactTransmitPacket;
-	}
+	overrideCreateElement(
+		function (originalCreateElement, type, props, children) {
+			var args = [].slice.call(arguments, 1);
 
-	React.render(React.createElement(Component, myProps), targetDOMNode, callback);
+			if (isRootContainer(type) && fetchedFragments.length) {
+				assign(props, fetchedFragments.pop());
+			}
+
+			return originalCreateElement.apply(null, args);
+		},
+		function () {
+			assign(props, {createElement: React.createElement});
+			ReactDOM.render(React.createElement(Component, props), targetDOMNode, callback);
+		}
+	);
 };

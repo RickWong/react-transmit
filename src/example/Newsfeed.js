@@ -16,7 +16,7 @@ const Newsfeed = React.createClass({
 		return (
 			<InlineCss stylesheet={Newsfeed.css()}>
 				<main>
-					{newsfeed.map((story, key) => {
+					{newsfeed && newsfeed.map((story, key) => {
 						return <Story story={story} key={key}/>;
 					})}
 				</main>
@@ -30,45 +30,48 @@ const Newsfeed = React.createClass({
 	},
 	onLoadMore () {
 		/**
-		 * Call this.props.setQueryParams() to tell Transmit to query again.
+		 * Call this.props.transmit.forceFetch() to re-fetch fragments with new variables.
 		 */
-		this.props.setQueryParams({
-			currentNewsfeed:  this.props.newsfeed,
-			nextStoryId:      this.props.queryParams.nextStoryId + 1
-		}).then((queryResults) => {
+		this.props.transmit.forceFetch({
+			existingNewsfeed: this.props.newsfeed,
+			nextStoryId:      this.props.transmit.variables.nextStoryId + 1
+		}).then((fetchedFragments) => {
 			/**
-			 * This is optional. It allows this component to capture the Transmit query results.
+			 * Optional. Like onFetch() you can capture the fetched data or handle any errors.
  			 */
-			console.log("Newsfeed.setQueryParams: ", queryResults);
+			console.log("Newsfeed forceFetch: ", fetchedFragments);
 		});
 	}
 });
 
 /**
- *  Higher-order component that will do queries for the above React component.
+ *  Higher-order component that will fetch data for the above React component.
  */
 export default Transmit.createContainer(Newsfeed, {
 	/**
-	 * Default query params.
+	 * Default variables.
 	 */
-	queryParams: {
-		currentNewsfeed: [],
-		nextStoryId:     1
+	initialVariables: {
+		existingNewsfeed: [],
+		nextStoryId:      1
 	},
-	queries: {
+	fragments: {
 		/**
-		 * The "newsfeed" query will concatenate the next Story to the current newsfeed, and returns
-		 * the updated newsfeed in a Promise.
+		 * The "newsfeed" fragment fetches the next Story, and returns a Promise to a newsfeed that
+		 * is the existing newsfeed concatenated with the next Story.
 		 */
-		newsfeed (queryParams) {
+		newsfeed ({existingNewsfeed, nextStoryId}) {
 			return (
-				Story.getQuery(
-					"story", {storyId: queryParams.nextStoryId}
+				Story.getFragment(
+					"story", {storyId: nextStoryId}
 				).then((nextStory) => {
-					return queryParams.currentNewsfeed.concat([nextStory]);
+					return existingNewsfeed.concat([nextStory]);
 				})
 			);
 		}
+	},
+	shouldContainerUpdate (nextVariables) {
+		return this.variables.nextStoryId < nextVariables.nextStoryId;
 	}
 });
 

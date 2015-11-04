@@ -23,29 +23,23 @@ const Like = React.createClass({
 });
 
 /**
- *  Higher-order component that will do queries for the above React component.
+ *  Higher-order component that will fetch data for the above React component.
  */
 export default Transmit.createContainer(Like, {
-	/**
-	 * Default query params.
-	 */
-	queryParams: {
-		user: null
-	},
-	queries: {
+	fragments: {
 		/**
-		 * The "like" query maps a stargazer into a like.
+		 * The "like" fragment maps a GitHub user to a like.
 		 */
-		like (queryParams) {
-			if (!queryParams.user) {
-				throw new Error("queryParams.user required");
+		like ({user}) {
+			if (!user) {
+				throw new Error("user required");
 			}
 
 			return Promise.resolve({
-				name: queryParams.user.login,
-				uri: queryParams.user.html_url,
+				name: user.login,
+				uri: user.html_url,
 				profile_picture: {
-					uri: `${queryParams.user.avatar_url}&s=20`
+					uri: `${user.avatar_url}&s=20`
 				}
 			});
 		}

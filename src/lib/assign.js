@@ -3,4 +3,6 @@
  */
 "use strict";
 
-module.exports = require("react-native");
+var React = require("./react");
+
+module.exports = React.__spread;
