@@ -21,13 +21,15 @@ module.exports = {
 	],
 	module:  {
 		loaders: [
-			{include: /\.json$/, loaders: ["json-loader"]},
-			{include: /\.js$/, loaders: ["babel-loader?stage=1&optional=runtime"], exclude: /(node_modules|lib)/}
-		]
+			{test: /\.json$/, loaders: ["json"]},
+			{test: /\.js$/, loaders: ["babel?cacheDirectory&presets[]=es2015&presets[]=react"], exclude: /node_modules/}
+		],
+		noParse: /\.min\.js$/
 	},
 	resolve: {
 		alias: {
-			"react-native": "react"
+			"react":        path.join(__dirname, "node_modules/react"),
+			"react-native": path.join(__dirname, "node_modules/react-native"),
 		},
 		modulesDirectories: [
 			"src",
