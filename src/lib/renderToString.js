@@ -24,6 +24,8 @@ module.exports = function (Component, props) {
 
 		overrideCreateElement(
 			function (originalCreateElement, type, props, children) {
+				if (myProps.customizeProps)
+					props = myProps.customizeProps(props);
 				var args = [].slice.call(arguments, 1);
 
 				if (isRootContainer(type)) {
@@ -50,6 +52,8 @@ module.exports = function (Component, props) {
 
 				overrideCreateElement(
 					function (originalCreateElement, type, props, children) {
+						if (myProps.customizeProps)
+							props = myProps.customizeProps(props);
 						var args = [].slice.call(arguments, 1);
 
 						if (isRootContainer(type) && fetchedFragments.length) {
