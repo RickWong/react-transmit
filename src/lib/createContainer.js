@@ -40,13 +40,24 @@ module.exports = function (Component, options) {
 
 				variables = assign({}, Container.variables, variables || {});
 
-				return Container.fragments[fragmentName](variables);
+				var promise = Container.fragments[fragmentName](variables);
+
+				if (typeof promise === "function" && isRootContainer(Container)) {
+					Container.fragments[fragmentName].deferred = true;
+
+					return new promiseProxy.Promise(function (resolve, reject) {
+						resolve(promise);
+					});
+				}
+
+				return promise;
 			},
 			/**
 			 * @returns {Promise}
 			 */
 			getAllFragments: function (variables, optionalFragmentNames) {
 				var promises = [];
+
 				optionalFragmentNames = optionalFragmentNames || [];
 
 				if (typeof optionalFragmentNames === "string") {
@@ -76,17 +87,20 @@ module.exports = function (Component, options) {
 
 				return promiseProxy.Promise.all(
 					promises
-				).then(function (promisedFragments) {
-					var fetchedFragments = {};
-
-					promisedFragments.forEach(function (promisedFragment) {
-						if (typeof promisedFragment === "object") {
-							assign(fetchedFragments, promisedFragment);
-						}
-					});
-
-					return fetchedFragments;
+				).then(function (fetchedFragments) {
+					return Container.combineFragments(fetchedFragments);
 				});
+			},
+			combineFragments: function (fragments) {
+				var stateChanges = {};
+
+				fragments.forEach(function (fragment) {
+					if (typeof fragment === "object") {
+						assign(stateChanges, fragment);
+					}
+				});
+
+				return stateChanges;
 			},
 		},
 		componentDidMount: function () {
@@ -114,26 +128,53 @@ module.exports = function (Component, options) {
 				}
 			}
 
-			var promise = new promiseProxy.Promise(function (resolve, reject) {
-				var props = _this.props || {};
+			var fetchPromise = new promiseProxy.Promise(function (resolve, reject) {
 				var promise;
 
 				assign(_this.variables, nextVariables);
 				promise = Container.getAllFragments(_this.variables, optionalFragmentNames);
 
 				promise.then(function (fetchedFragments) {
-					if (!_this._isMounted()) {
-						return fetchedFragments;
+					var deferredPromises = [];
+
+					if (isRootContainer(Container)) {
+						Object.keys(Container.fragments).forEach(function (key) {
+							if (typeof fetchedFragments[key] === "undefined" ||
+								typeof fetchedFragments[key] !== "function") {
+								return;
+							}
+
+							if (Container.fragments[key].deferred) {
+								deferredPromises.push(
+									fetchedFragments[key]().then(function (deferredFragment) {
+										var fetchedDeferred = {};
+
+										fetchedDeferred[key] = deferredFragment;
+
+										return fetchedDeferred;
+									})
+								);
+
+								// Set to null so component is allowed to be rendered.
+								fetchedFragments[key] = null;
+							}
+						});
 					}
 
-					try {
-						_this.setState(fetchedFragments);
-					}
-					catch (error) {
-						// Call to setState may fail if renderToString() was used.
-						if (!error.message || !error.message.match(/^document/)) {
-							throw error;
-						}
+					_this.safeguardedSetState(fetchedFragments);
+
+					if (deferredPromises.length) {
+						var deferredFetchPromise = promiseProxy.Promise.all(
+							deferredPromises
+						).then(function (deferredFragments) {
+							var deferredFetchedFragments = Container.combineFragments(deferredFragments);
+
+							_this.safeguardedSetState(deferredFetchedFragments);
+
+							return deferredFetchedFragments;
+						});
+
+						_this.callOnFetchHandler(deferredFetchPromise);
 					}
 
 					return fetchedFragments;
@@ -142,11 +183,29 @@ module.exports = function (Component, options) {
 				resolve(promise);
 			});
 
-			if (this.props.onFetch) {
-				this.props.onFetch.call(this, promise);
+			_this.callOnFetchHandler(fetchPromise);
+
+			return fetchPromise;
+		},
+		callOnFetchHandler: function (fetchPromise) {
+			if (this.props && this.props.onFetch) {
+				this.props.onFetch.call(this, fetchPromise);
+			}
+		},
+		safeguardedSetState: function (stateChanges) {
+			if (!this._isMounted()) {
+				return;
 			}
 
-			return promise;
+			try {
+				this.setState(stateChanges);
+			}
+			catch (error) {
+				// Call to setState may fail if renderToString() was used.
+				if (!error.message || !error.message.match(/^document/)) {
+					throw error;
+				}
+			}
 		},
 		/**
 		 * @returns {Boolean} true if all queries have results.

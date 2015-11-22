@@ -59,15 +59,15 @@ export default Transmit.createContainer(Newsfeed, {
 		/**
 		 * The "newsfeed" fragment fetches the next Story, and returns a Promise to a newsfeed that
 		 * is the existing newsfeed concatenated with the next Story.
+		 *
+		 * Actually this Promise is marked as deferred, since it's wrapped in a function.
 		 */
 		newsfeed ({existingNewsfeed, nextStoryId}) {
-			return (
-				Story.getFragment(
-					"story", {storyId: nextStoryId}
-				).then((nextStory) => {
-					return existingNewsfeed.concat([nextStory]);
-				})
-			);
+			return () => Story.getFragment(
+				"story", {storyId: nextStoryId}
+			).then((nextStory) => {
+				return existingNewsfeed.concat([nextStory]);
+			});
 		}
 	},
 	shouldContainerUpdate (nextVariables) {

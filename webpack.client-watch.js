@@ -3,7 +3,7 @@ var config = require("./webpack.client.js");
 
 config.cache = true;
 config.debug = true;
-config.devtool = "eval";
+config.devtool = "eval-sourcemap";
 
 config.entry.unshift(
 	"webpack-dev-server/client?http://localhost:8080",

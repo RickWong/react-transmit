@@ -60,6 +60,10 @@ export default Transmit.createContainer(Newsfeed, {
 				Story.getFragment("story", {storyId: 2}),
 				Story.getFragment("story", {storyId: 3})
 			]);
+		},
+		somethingDeferred () {
+			// Return the promise wrapped in a function to mark this fragment as non-critical.
+			return () => Promise.resolve(true);
 		}
 	}
 });
