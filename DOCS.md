@@ -86,6 +86,7 @@ Transmit exposes a complemental API to the contained ReactClass via its `this.pr
 
 * For each declared query the original ReactClass will receive the query result from the container as a prop named exactly like the query.
 * The query results are simply the values resolved from the query's Promise.
+* If the query returns a function (that returns the query's Promise) then it's treated as deferred. The Promise results only become available in subsequent renders.
 * [Example usage](https://github.com/RickWong/react-transmit/blob/c0266b061a2cfa7030500b932f3a88bf195e4465/src/example/Newsfeed.js#L14)
 
 #### `transmit.variables : object`

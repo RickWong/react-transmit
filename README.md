@@ -8,6 +8,9 @@
 
 Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.io/react/blog/2015/03/19/building-the-facebook-news-feed-with-relay.html) (React blog)
 
+![version](https://img.shields.io/npm/v/react-transmit.svg) ![license](https://img.shields.io/npm/l/react-transmit.svg) [![Package Quality](http://npm.packagequality.com/shield/react-transmit.svg)](http://packagequality.com/#?package=react-isomorphic-starterkit) ![npm installs](https://img.shields.io/npm/dt/react-transmit.svg) ![downloads](https://img.shields.io/github/downloads/RickWong/react-transmit/latest/total.svg)
+
+
 ## Features
 
 - API similar to the official Relay API, adapted for Promises.
@@ -57,6 +60,10 @@ export default Transmit.createContainer(Newsfeed, {
 				Story.getFragment("story", {storyId: 2}),
 				Story.getFragment("story", {storyId: 3})
 			]);
+		},
+		somethingDeferred () {
+			// Return the promise wrapped in a function to mark this fragment as non-critical.
+			return () => Promise.resolve(true);
 		}
 	}
 });
