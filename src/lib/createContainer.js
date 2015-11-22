@@ -135,8 +135,6 @@ module.exports = function (Component, options) {
 				promise = Container.getAllFragments(_this.variables, optionalFragmentNames);
 
 				promise.then(function (fetchedFragments) {
-					var deferredPromises = [];
-
 					if (isRootContainer(Container)) {
 						Object.keys(Container.fragments).forEach(function (key) {
 							if (typeof fetchedFragments[key] === "undefined" ||
@@ -145,37 +143,25 @@ module.exports = function (Component, options) {
 							}
 
 							if (Container.fragments[key].deferred) {
-								deferredPromises.push(
-									fetchedFragments[key]().then(function (deferredFragment) {
-										var fetchedDeferred = {};
+								var deferredFetchPromise = fetchedFragments[key]().then(function (deferredFragment) {
+									var fetchedDeferred = {};
 
-										fetchedDeferred[key] = deferredFragment;
+									fetchedDeferred[key] = deferredFragment;
 
-										return fetchedDeferred;
-									})
-								);
+									_this.safeguardedSetState(fetchedDeferred);
+
+									return fetchedDeferred;
+								});
 
 								// Set to null so component is allowed to be rendered.
 								fetchedFragments[key] = null;
+
+								_this.callOnFetchHandler(deferredFetchPromise);
 							}
 						});
 					}
 
 					_this.safeguardedSetState(fetchedFragments);
-
-					if (deferredPromises.length) {
-						var deferredFetchPromise = promiseProxy.Promise.all(
-							deferredPromises
-						).then(function (deferredFragments) {
-							var deferredFetchedFragments = Container.combineFragments(deferredFragments);
-
-							_this.safeguardedSetState(deferredFetchedFragments);
-
-							return deferredFetchedFragments;
-						});
-
-						_this.callOnFetchHandler(deferredFetchPromise);
-					}
 
 					return fetchedFragments;
 				});
