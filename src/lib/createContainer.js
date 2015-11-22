@@ -7,6 +7,7 @@ var isRootContainer = require("./isRootContainer");
 var promiseProxy    = require("./promiseProxy");
 var React           = require("./react");
 var assign          = require("./assign");
+var assignProperty  = require("./assignProperty");
 
 /**
  * @function createContainer
@@ -16,7 +17,7 @@ module.exports = function (Component, options) {
 	options = arguments[1] || {};
 
 	var Container = React.createClass({
-		displayName: (Component.displayName || Component.name) + "Container",
+		displayName: (Component.displayName || Component.name) + "TransmitContainer",
 		propTypes: {
 			variables:             React.PropTypes.object,
 			onFetch:               React.PropTypes.func,
@@ -43,8 +44,6 @@ module.exports = function (Component, options) {
 				var promise = Container.fragments[fragmentName](variables);
 
 				if (typeof promise === "function" && isRootContainer(Container)) {
-					Container.fragments[fragmentName].deferred = true;
-
 					return new promiseProxy.Promise(function (resolve, reject) {
 						resolve(promise);
 					});
@@ -72,10 +71,7 @@ module.exports = function (Component, options) {
 					var promise = Container.getFragment(
 						fragmentName, variables
 					).then(function (fragmentResult) {
-						var fragmentResults = {};
-						fragmentResults[fragmentName] = fragmentResult;
-
-						return fragmentResults;
+						return assignProperty({}, fragmentName, fragmentResult);
 					});
 
 					promises.push(promise);
@@ -88,21 +84,11 @@ module.exports = function (Component, options) {
 				return promiseProxy.Promise.all(
 					promises
 				).then(function (fetchedFragments) {
-					return Container.combineFragments(fetchedFragments);
+					return assign.apply(null, fetchedFragments);
 				});
-			},
-			combineFragments: function (fragments) {
-				var stateChanges = {};
-
-				fragments.forEach(function (fragment) {
-					if (typeof fragment === "object") {
-						assign(stateChanges, fragment);
-					}
-				});
-
-				return stateChanges;
-			},
+			}
 		},
+		deferredFragments: {},
 		componentDidMount: function () {
 			// Keep track of the mounted state manually, because the official isMounted() method
 			// returns true when using renderToString() from react-dom/server.
@@ -122,6 +108,10 @@ module.exports = function (Component, options) {
 			var _this = this;
 			nextVariables = nextVariables || {};
 
+			if (!isRootContainer(Container)) {
+				throw new Error("Only root Transmit Containers should fetch fragments");
+			}
+
 			if (options.shouldContainerUpdate && Object.keys(nextVariables).length) {
 				if (!options.shouldContainerUpdate.call(this, nextVariables)) {
 					return false;
@@ -135,31 +125,16 @@ module.exports = function (Component, options) {
 				promise = Container.getAllFragments(_this.variables, optionalFragmentNames);
 
 				promise.then(function (fetchedFragments) {
-					if (isRootContainer(Container)) {
-						Object.keys(Container.fragments).forEach(function (key) {
-							if (typeof fetchedFragments[key] === "undefined" ||
-								typeof fetchedFragments[key] !== "function") {
-								return;
-							}
+					Object.keys(fetchedFragments).forEach(function (key) {
+						if (typeof fetchedFragments[key] !== "function") {
+							return;
+						}
 
-							if (Container.fragments[key].deferred) {
-								var deferredFetchPromise = fetchedFragments[key]().then(function (deferredFragment) {
-									var fetchedDeferred = {};
+						assignProperty(_this.deferredFragments, key, fetchedFragments[key]);
 
-									fetchedDeferred[key] = deferredFragment;
-
-									_this.safeguardedSetState(fetchedDeferred);
-
-									return fetchedDeferred;
-								});
-
-								// Set to null so component is allowed to be rendered.
-								fetchedFragments[key] = null;
-
-								_this.callOnFetchHandler(deferredFetchPromise);
-							}
-						});
-					}
+						// Set to null so component is allowed to be rendered.
+						fetchedFragments[key] = null;
+					});
 
 					_this.safeguardedSetState(fetchedFragments);
 
@@ -172,6 +147,27 @@ module.exports = function (Component, options) {
 			_this.callOnFetchHandler(fetchPromise);
 
 			return fetchPromise;
+		},
+		fetchRemainingDeferred: function () {
+			if (!this._isMounted()) {
+				return;
+			}
+
+			var _this = this;
+
+			Object.keys(_this.deferredFragments).forEach(function (key) {
+				var fetchPromise = _this.deferredFragments[key]().then(function (deferredFragment) {
+					var fetchedDeferred = assignProperty({}, key, deferredFragment);
+
+					_this.safeguardedSetState(fetchedDeferred);
+
+					return fetchedDeferred;
+				});
+
+				delete _this.deferredFragments[key];
+
+				_this.callOnFetchHandler(fetchPromise);
+			});
 		},
 		callOnFetchHandler: function (fetchPromise) {
 			if (this.props && this.props.onFetch) {
@@ -257,6 +253,8 @@ module.exports = function (Component, options) {
 				       props.renderLoading() :
 				       props.renderLoading || null;
 			}
+
+			this.fetchRemainingDeferred();
 
 			return React.createElement(
 				Component,
