@@ -11,7 +11,7 @@ import Like from "example/Like";
 const Story = React.createClass({
 	render () {
 		/**
-		 * Transmitted prop is guaranteed.
+		 * This prop is guaranteed.
 		 */
 		const story = this.props.story;
 
@@ -63,7 +63,7 @@ export default Transmit.createContainer(Story, {
 					 * Chain a promise that maps GitHub users into likers.
 					 */
 					return Promise.all(
-						stargazers.map((user) => Like.getFragment("like", {user}))
+						stargazers.map((stargazer) => Like.getFragment("like", {stargazer}))
 					);
 				}).then((likes) => {
 					/**

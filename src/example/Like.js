@@ -8,7 +8,7 @@ import Transmit from "lib/react-transmit";
 const Like = React.createClass({
 	render () {
 		/**
-		 * Transmitted prop is guaranteed.
+		 * This prop is guaranteed by Transmit.
 		 */
 		const like = this.props.like;
 
@@ -30,16 +30,12 @@ export default Transmit.createContainer(Like, {
 		/**
 		 * The "like" fragment maps a GitHub user to a like.
 		 */
-		like ({user}) {
-			if (!user) {
-				throw new Error("user required");
-			}
-
+		like ({stargazer}) {
 			return Promise.resolve({
-				name: user.login,
-				uri: user.html_url,
+				name:            stargazer.login,
+				uri:             stargazer.html_url,
 				profile_picture: {
-					uri: `${user.avatar_url}&s=20`
+					uri: `${stargazer.avatar_url}&s=20`
 				}
 			});
 		}
