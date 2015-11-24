@@ -9,14 +9,14 @@ import Story from "example/Story";
 const Newsfeed = React.createClass({
 	render () {
 		/**
-		 * Transmitted prop is guaranteed.
+		 * This prop could be deferred, see explanation below.
 		 */
-		const newsfeed = this.props.newsfeed;
+		const newsfeed = this.props.newsfeed || [];
 
 		return (
 			<InlineCss stylesheet={Newsfeed.css()}>
 				<main>
-					{newsfeed && newsfeed.map((story, key) => {
+					{newsfeed.map((story, key) => {
 						return <Story story={story} key={key}/>;
 					})}
 				</main>

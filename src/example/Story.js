@@ -1,4 +1,5 @@
-import _fetch from "isomorphic-fetch";
+import fetch from "isomorphic-fetch";
+import fetchRest from "fetch-rest";
 import React from "react";
 import InlineCss from "react-inline-css";
 import Transmit from "lib/react-transmit";
@@ -10,7 +11,7 @@ import Like from "example/Like";
 const Story = React.createClass({
 	render () {
 		/**
-		 * Transmitted prop is guaranteed.
+		 * This prop is guaranteed.
 		 */
 		const story = this.props.story;
 
@@ -37,6 +38,9 @@ const Story = React.createClass({
 	}
 });
 
+const githubApi = fetchRest.describeEndpoint("https://api.github.com/repos/RickWong/react-transmit");
+const stargazersApi = githubApi.describeResource("stargazers");
+
 /**
  *  Higher-order component that will fetch data for the above React component.
  */
@@ -52,21 +56,14 @@ export default Transmit.createContainer(Story, {
 			}
 
 			return (
-				fetch(
-					"https://api.github.com/repos/RickWong/react-transmit/stargazers" +
-					`?per_page=60&page=${storyId}`
-				).then((response) => {
-					if (!response.ok) {
-						throw new Error(response.statusText);
-					}
-
-					return response.json();
-				}).then((stargazers) => {
+				stargazersApi.browse(
+					{per_page: 60, page: storyId}
+				).then((response) => response.json()).then((stargazers) => {
 					/**
 					 * Chain a promise that maps GitHub users into likers.
 					 */
 					return Promise.all(
-						stargazers.map((user) => Like.getFragment("like", {user}))
+						stargazers.map((stargazer) => Like.getFragment("like", {stargazer}))
 					);
 				}).then((likes) => {
 					/**
