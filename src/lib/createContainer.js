@@ -88,11 +88,18 @@ module.exports = function (Component, options) {
 				});
 			}
 		},
-		deferredFragments: {},
 		componentDidMount: function () {
 			// Keep track of the mounted state manually, because the official isMounted() method
 			// returns true when using renderToString() from react-dom/server.
 			this._mounted = true;
+
+			if (isRootContainer(Container)) {
+				var deferredFragments = this.missingFragments(false);
+
+				if (deferredFragments.length) {
+					this.forceFetch({}, deferredFragments);
+				}
+			}
 		},
 		componentWillUnmount: function () {
 			this._mounted = false;
@@ -104,7 +111,7 @@ module.exports = function (Component, options) {
 		/**
 		 * @returns {Promise|Boolean}
 		 */
-		forceFetch: function (nextVariables, optionalFragmentNames) {
+		forceFetch: function (nextVariables, optionalFragmentNames, skipDeferred) {
 			var _this = this;
 			nextVariables = nextVariables || {};
 
@@ -118,56 +125,50 @@ module.exports = function (Component, options) {
 				}
 			}
 
-			var fetchPromise = new promiseProxy.Promise(function (resolve, reject) {
-				var promise;
+			assign(_this.variables, nextVariables);
+			var fetchPromise = Container.getAllFragments(_this.variables, optionalFragmentNames);
 
-				assign(_this.variables, nextVariables);
-				promise = Container.getAllFragments(_this.variables, optionalFragmentNames);
+			fetchPromise.then(function (fetchedFragments) {
+				var deferredFragments = {};
 
-				promise.then(function (fetchedFragments) {
-					Object.keys(fetchedFragments).forEach(function (key) {
-						if (typeof fetchedFragments[key] !== "function") {
-							return;
-						}
+				Object.keys(fetchedFragments).forEach(function (key) {
+					if (typeof fetchedFragments[key] !== "function") {
+						return;
+					}
 
-						assignProperty(_this.deferredFragments, key, fetchedFragments[key]);
-
-						// Set to null so component is allowed to be rendered.
+					if (skipDeferred) {
+						// Set deferred fragment to null so component will be rendered.
 						fetchedFragments[key] = null;
-					});
-
-					_this.safeguardedSetState(fetchedFragments);
-
-					return fetchedFragments;
+					}
+					else {
+						// Remember and then delete the deferred fragment.
+						assignProperty(deferredFragments, key, fetchedFragments[key]);
+						delete fetchedFragments[key];
+					}
 				});
 
-				resolve(promise);
+				_this.safeguardedSetState(fetchedFragments);
+
+				if (!skipDeferred) {
+					Object.keys(deferredFragments).forEach(function (key) {
+						var fetchPromise = deferredFragments[key]().then(function (deferredFragment) {
+							var fetchedDeferred = assignProperty({}, key, deferredFragment);
+
+							_this.safeguardedSetState(fetchedDeferred);
+
+							return fetchedDeferred;
+						});
+
+						_this.callOnFetchHandler(fetchPromise);
+					});
+				}
+
+				return fetchedFragments;
 			});
 
 			_this.callOnFetchHandler(fetchPromise);
 
 			return fetchPromise;
-		},
-		fetchRemainingDeferred: function () {
-			if (!this._isMounted()) {
-				return;
-			}
-
-			var _this = this;
-
-			Object.keys(_this.deferredFragments).forEach(function (key) {
-				var fetchPromise = _this.deferredFragments[key]().then(function (deferredFragment) {
-					var fetchedDeferred = assignProperty({}, key, deferredFragment);
-
-					_this.safeguardedSetState(fetchedDeferred);
-
-					return fetchedDeferred;
-				});
-
-				delete _this.deferredFragments[key];
-
-				_this.callOnFetchHandler(fetchPromise);
-			});
 		},
 		callOnFetchHandler: function (fetchPromise) {
 			if (this.props && this.props.onFetch) {
@@ -176,6 +177,10 @@ module.exports = function (Component, options) {
 		},
 		safeguardedSetState: function (stateChanges) {
 			if (!this._isMounted()) {
+				return;
+			}
+
+			if (!Object.keys(stateChanges).length) {
 				return;
 			}
 
@@ -190,27 +195,35 @@ module.exports = function (Component, options) {
 			}
 		},
 		/**
-		 * @returns {Boolean} true if all queries have results.
+		 * @returns {Array} Names of fragments with missing data.
 		 */
-		hasFetched: function () {
+		missingFragments: function (nullAllowed) {
 			var state = this.state || {};
 			var props = this.props || {};
 
 			if (!Object.keys(Container.fragments).length) {
-				return true;
+				return [];
 			}
+
+			var missing = [];
 
 			for (var fragmentName in Container.fragments) {
 				if (!Container.fragments.hasOwnProperty(fragmentName) ||
-				    props.hasOwnProperty(fragmentName) ||
-				    state.hasOwnProperty(fragmentName)) {
-					continue;
+					props.hasOwnProperty(fragmentName) ||
+					state.hasOwnProperty(fragmentName)) {
+					if (nullAllowed) {
+						continue;
+					}
+
+					if (props[fragmentName] || state[fragmentName]) {
+						continue;
+					}
 				}
 
-				return false;
+				missing.push(fragmentName);
 			}
 
-			return true;
+			return missing;
 		},
 		/**
 		 */
@@ -220,11 +233,15 @@ module.exports = function (Component, options) {
 			this.variables = assign({}, Container.variables, externalVariables);
 			this.variables = Container.prepareVariables(this.variables);
 
-			if (!this.hasFetched()) {
-				this.forceFetch();
-			}
-			else if (this.props.onFetch) {
-				this.props.onFetch.call(this, promiseProxy.Promise.resolve({}));
+			if (isRootContainer(Container)) {
+				var missingFragments = this.missingFragments(true);
+
+				if (missingFragments.length) {
+					this.forceFetch({}, missingFragments, true);
+				}
+				else {
+					this.callOnFetchHandler(promiseProxy.Promise.resolve({}));
+				}
 			}
 		},
 		/**
@@ -248,13 +265,10 @@ module.exports = function (Component, options) {
 			};
 
 			// Don't render without data.
-			if (!this.hasFetched()) {
+			if (this.missingFragments(true).length) {
 				return (typeof props.renderLoading === "function") ?
-				       props.renderLoading() :
-				       props.renderLoading || null;
+					props.renderLoading() : props.renderLoading || null;
 			}
-
-			this.fetchRemainingDeferred();
 
 			return React.createElement(
 				Component,
