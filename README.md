@@ -8,7 +8,7 @@
 
 Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.io/react/blog/2015/03/19/building-the-facebook-news-feed-with-relay.html) (React blog)
 
-![version](https://img.shields.io/npm/v/react-transmit.svg) ![license](https://img.shields.io/npm/l/react-transmit.svg) [![Package Quality](http://npm.packagequality.com/shield/react-transmit.svg)](http://packagequality.com/#?package=react-isomorphic-starterkit) ![npm installs](https://img.shields.io/npm/dt/react-transmit.svg) ![downloads](https://img.shields.io/github/downloads/RickWong/react-transmit/latest/total.svg)
+![version](https://img.shields.io/npm/v/react-transmit.svg) ![license](https://img.shields.io/npm/l/react-transmit.svg) [![Package Quality](http://npm.packagequality.com/shield/react-transmit.svg)](http://packagequality.com/#?package=react-transmit) ![npm installs](https://img.shields.io/npm/dt/react-transmit.svg) ![downloads](https://img.shields.io/github/downloads/RickWong/react-transmit/latest/total.svg)
 
 
 ## Features
