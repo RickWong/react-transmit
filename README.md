@@ -42,7 +42,7 @@ const Newsfeed = React.createClass({
 	render () {
 		const {stories} = this.props;  // Fragments are guaranteed.
 
-		return stories.map((story) => <Story story={story} />);
+		return <div>{stories.map(story => <Story story={story} />)}</div>;
 	}
 });
 
@@ -86,7 +86,7 @@ export default Transmit.createContainer(Story, {
 	fragments: {
 		// This "story" fragment returns a Fetch API promise.
 		story ({storyId}) {
-			return fetch("https://some.api/stories/" + storyId).then((res) => res.json());
+			return fetch("https://some.api/stories/" + storyId).then(res => res.json());
 		}
 	}
 });
