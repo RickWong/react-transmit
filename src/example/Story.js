@@ -1,9 +1,8 @@
-import fetch from "isomorphic-fetch";
-import fetchRest from "fetch-rest";
 import React from "react";
 import InlineCss from "react-inline-css";
 import Transmit from "lib/react-transmit";
 import Like from "example/Like";
+import githubRest from "./githubRest";
 
 /**
  * @class Story
@@ -38,9 +37,6 @@ const Story = React.createClass({
 	}
 });
 
-const githubApi = fetchRest.describeEndpoint("https://api.github.com/repos/RickWong/react-transmit");
-const stargazersApi = githubApi.describeResource("stargazers");
-
 /**
  *  Higher-order component that will fetch data for the above React component.
  */
@@ -56,9 +52,10 @@ export default Transmit.createContainer(Story, {
 			}
 
 			return (
-				stargazersApi.browse(
-					{per_page: 60, page: storyId}
-				).then((response) => response.json()).then((stargazers) => {
+				githubRest.browse(
+					["repos", "RickWong/react-transmit", "stargazers"],
+					{query: {per_page: 60, page: storyId}}
+				).then((stargazers) => {
 					/**
 					 * Chain a promise that maps GitHub users into likers.
 					 */

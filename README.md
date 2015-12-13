@@ -8,7 +8,7 @@
 
 Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.io/react/blog/2015/03/19/building-the-facebook-news-feed-with-relay.html) (React blog)
 
-![version](https://img.shields.io/npm/v/react-transmit.svg) ![license](https://img.shields.io/npm/l/react-transmit.svg) [![Package Quality](http://npm.packagequality.com/shield/react-transmit.svg)](http://packagequality.com/#?package=react-isomorphic-starterkit) ![npm installs](https://img.shields.io/npm/dt/react-transmit.svg) ![downloads](https://img.shields.io/github/downloads/RickWong/react-transmit/latest/total.svg)
+![version](https://img.shields.io/npm/v/react-transmit.svg) ![license](https://img.shields.io/npm/l/react-transmit.svg) [![Package Quality](http://npm.packagequality.com/shield/react-transmit.svg)](http://packagequality.com/#?package=react-transmit) ![npm installs](https://img.shields.io/npm/dt/react-transmit.svg) ![downloads](https://img.shields.io/github/downloads/RickWong/react-transmit/latest/total.svg)
 
 
 ## Features
@@ -42,7 +42,7 @@ const Newsfeed = React.createClass({
 	render () {
 		const {stories} = this.props;  // Fragments are guaranteed.
 
-		return stories.map((story) => <Story story={story} />);
+		return <div>{stories.map(story => <Story story={story} />)}</div>;
 	}
 });
 
@@ -86,7 +86,7 @@ export default Transmit.createContainer(Story, {
 	fragments: {
 		// This "story" fragment returns a Fetch API promise.
 		story ({storyId}) {
-			return fetch("https://some.api/stories/" + storyId).then((res) => res.json());
+			return fetch("https://some.api/stories/" + storyId).then(res => res.json());
 		}
 	}
 });
