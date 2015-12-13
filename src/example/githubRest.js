@@ -1,6 +1,6 @@
 import fetch from "isomorphic-fetch";
-import {connectEndpoint} from "fetch-rest";
-import jsonMiddleware from "fetch-rest-json";
+import {connectEndpoint} from "fetch-plus";
+import jsonMiddleware from "fetch-plus-json";
 
 /**
  * Return GitHub API client with built-in JSON support.
