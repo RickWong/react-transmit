@@ -15,8 +15,7 @@ var assignProperty  = require("./assignProperty");
  */
 module.exports = function (Component, options) {
 	options = arguments[1] || {};
-	//temp props of fragments untill passed to state
-	options.tmpProps = [];
+
 	var Container = React.createClass({
 		displayName: (Component.displayName || Component.name) + "TransmitContainer",
 		propTypes: {
@@ -114,7 +113,6 @@ module.exports = function (Component, options) {
 		 */
 		forceFetch: function (nextVariables, optionalFragmentNames, skipDeferred) {
 			var _this = this;
-
 			nextVariables = nextVariables || {};
 
 			if (!isRootContainer(Container)) {
@@ -187,14 +185,6 @@ module.exports = function (Component, options) {
 			}
 
 			try {
-				if(options.tmpProps.length>0){
-					Object.keys(stateChanges).forEach(function (key) {
-						var index = options.tmpProps.indexOf(key);
-						if(index>-1){
-							 options.tmpProps.splice(index, 1);
-						}
-					});
-				}
 				this.setState(stateChanges);
 			}
 			catch (error) {
@@ -215,27 +205,25 @@ module.exports = function (Component, options) {
 				return [];
 			}
 
-			//var missing = [];
-			//now you can use options.tmpProps even missing.
+			var missing = [];
+
 			for (var fragmentName in Container.fragments) {
 				if (!Container.fragments.hasOwnProperty(fragmentName) ||
 					props.hasOwnProperty(fragmentName) ||
-					state.hasOwnProperty(fragmentName) ||
-					options.tmpProps) {
+					state.hasOwnProperty(fragmentName)) {
 					if (nullAllowed) {
 						continue;
 					}
 
-					if (props[fragmentName] || state[fragmentName] || options.tmpProps[fragmentName]) {
+					if (props[fragmentName] || state[fragmentName]) {
 						continue;
 					}
 				}
-				options.tmpProps.push(fragmentName);
-			//missing.push(fragmentName);
+
+				missing.push(fragmentName);
 			}
 
-			//return missing;
-			return options.tmpProps;
+			return missing;
 		},
 		/**
 		 */
@@ -244,16 +232,15 @@ module.exports = function (Component, options) {
 
 			this.variables = assign({}, Container.variables, externalVariables);
 			this.variables = Container.prepareVariables(this.variables);
-
+			//Called Twice becose is calling when is render
 			if (isRootContainer(Container)) {
 				var missingFragments = this.missingFragments(true);
 
 				if (missingFragments.length) {
-
-					this.forceFetch({}, missingFragments, true);
+					//this.forceFetch({}, missingFragments, true);
 				}
 				else {
-					this.callOnFetchHandler(promiseProxy.Promise.resolve({}));
+					//this.callOnFetchHandler(promiseProxy.Promise.resolve({}));
 				}
 			}
 		},
