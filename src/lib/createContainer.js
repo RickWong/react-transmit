@@ -221,7 +221,7 @@ module.exports = function (Component, options) {
 				if (!Container.fragments.hasOwnProperty(fragmentName) ||
 					props.hasOwnProperty(fragmentName) ||
 					state.hasOwnProperty(fragmentName) ||
-					options.tmpProps[fragmentName]) {
+					options.tmpProps) {
 					if (nullAllowed) {
 						continue;
 					}
