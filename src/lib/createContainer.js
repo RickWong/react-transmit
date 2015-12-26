@@ -15,7 +15,8 @@ var assignProperty  = require("./assignProperty");
  */
 module.exports = function (Component, options) {
 	options = arguments[1] || {};
-
+	//temp props of fragments untill passed to state
+	options.tmpProps = [];
 	var Container = React.createClass({
 		displayName: (Component.displayName || Component.name) + "TransmitContainer",
 		propTypes: {
@@ -113,6 +114,7 @@ module.exports = function (Component, options) {
 		 */
 		forceFetch: function (nextVariables, optionalFragmentNames, skipDeferred) {
 			var _this = this;
+
 			nextVariables = nextVariables || {};
 
 			if (!isRootContainer(Container)) {
@@ -185,6 +187,14 @@ module.exports = function (Component, options) {
 			}
 
 			try {
+				if(options.tmpProps.length>0){
+					Object.keys(stateChanges).forEach(function (key) {
+						var index = options.tmpProps.indexOf(key);
+						if(index>-1){
+							 options.tmpProps.splice(index, 1);
+						}
+					});
+				}
 				this.setState(stateChanges);
 			}
 			catch (error) {
@@ -205,25 +215,27 @@ module.exports = function (Component, options) {
 				return [];
 			}
 
-			var missing = [];
-
+			//var missing = [];
+			//now you can use options.tmpProps even missing.
 			for (var fragmentName in Container.fragments) {
 				if (!Container.fragments.hasOwnProperty(fragmentName) ||
 					props.hasOwnProperty(fragmentName) ||
-					state.hasOwnProperty(fragmentName)) {
+					state.hasOwnProperty(fragmentName) ||
+					options.tmpProps[fragmentName]) {
 					if (nullAllowed) {
 						continue;
 					}
 
-					if (props[fragmentName] || state[fragmentName]) {
+					if (props[fragmentName] || state[fragmentName] || options.tmpProps[fragmentName]) {
 						continue;
 					}
 				}
-
-				missing.push(fragmentName);
+				options.tmpProps.push(fragmentName);
+			//missing.push(fragmentName);
 			}
 
-			return missing;
+			//return missing;
+			return options.tmpProps;
 		},
 		/**
 		 */
@@ -237,6 +249,7 @@ module.exports = function (Component, options) {
 				var missingFragments = this.missingFragments(true);
 
 				if (missingFragments.length) {
+
 					this.forceFetch({}, missingFragments, true);
 				}
 				else {
