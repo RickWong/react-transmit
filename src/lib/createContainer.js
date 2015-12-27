@@ -237,10 +237,10 @@ module.exports = function (Component, options) {
 				var missingFragments = this.missingFragments(true);
 
 				if (missingFragments.length) {
-					this.forceFetch({}, missingFragments, true);
+					if(typeof(window)==='undefined')this.forceFetch({}, missingFragments, true);
 				}
 				else {
-					//this.callOnFetchHandler(promiseProxy.Promise.resolve({}));
+					this.callOnFetchHandler(promiseProxy.Promise.resolve({}));
 				}
 			}
 		},
