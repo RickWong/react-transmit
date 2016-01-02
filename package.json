@@ -1,13 +1,13 @@
 {
-  "name": "react-transmit",
-  "description": "Relay-inspired library based on Promises instead of GraphQL.",
+  "name": "react-transmit-client-server",
+  "description": "Fork of  Relay-inspired library based on Promises instead of GraphQL.",
   "version": "3.1.5",
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RickWong/react-transmit.git"
+    "url": "https://github.com/kasselTrankos/react-transmit"
   },
-  "homepage": "https://github.com/RickWong/react-transmit",
+  "homepage": "https://github.com/kasselTrankos/react-transmit",
   "keywords": [
     "react",
     "transmit",

@@ -3,7 +3,7 @@
 [View live demo](https://edealer.nl/react-transmit/)
 
 # React Transmit
-Its a fork, to correct call duplicate on client.
+Its a fork of [react-transmit](https://github.com/kasselTrankos/react-transmit), to correct call duplicate on client.
 
 
 [Relay](https://facebook.github.io/relay/)-inspired library based on Promises instead of GraphQL.
