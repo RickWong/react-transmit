@@ -232,12 +232,12 @@ module.exports = function (Component, options) {
 
 			this.variables = assign({}, Container.variables, externalVariables);
 			this.variables = Container.prepareVariables(this.variables);
-
+			//Called Twice becose is calling when is render
 			if (isRootContainer(Container)) {
 				var missingFragments = this.missingFragments(true);
 
 				if (missingFragments.length) {
-					this.forceFetch({}, missingFragments, true);
+					if(typeof(window)==='undefined')this.forceFetch({}, missingFragments, true);
 				}
 				else {
 					this.callOnFetchHandler(promiseProxy.Promise.resolve({}));

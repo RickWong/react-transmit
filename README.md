@@ -1,8 +1,10 @@
 ![](http://i.imgur.com/X3JE4Ev.png?1)
 
-[View live demo](https://edealer.nl/react-transmit/) 
+[View live demo](https://edealer.nl/react-transmit/)
 
 # React Transmit
+Its a fork of [react-transmit](https://github.com/kasselTrankos/react-transmit), to correct call duplicate on client.
+
 
 [Relay](https://facebook.github.io/relay/)-inspired library based on Promises instead of GraphQL.
 
@@ -24,7 +26,7 @@ Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.
 ```bash
 	# For web or Node:
 	npm install react-transmit
-	
+
 	# For React Native:
 	npm install react-transmit-native
 ```
@@ -77,7 +79,7 @@ import Transmit from "react-transmit";  // Import Transmit.
 const Story = React.createClass({
 	render () {
 		const {story} = this.props; // Fragments are guaranteed.
-		
+
 		return <p>{story.content}</p>;
 	}
 });
