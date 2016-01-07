@@ -1,7 +1,7 @@
 {
   "name": "react-transmit",
   "description": "Relay-inspired library based on Promises instead of GraphQL.",
-  "version": "3.1.5",
+  "version": "3.1.6",
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
@@ -22,24 +22,24 @@
     "watch": "concurrent --kill-others 'npm run watch-client' 'npm run localhost'"
   },
   "dependencies": {
-    "ascii-json": "0.2.0",
-    "react": ">= 0.14.0",
-    "react-dom": ">= 0.14.0"
+    "ascii-json": ">= 0.2.0"
   },
   "devDependencies": {
-    "babel": "6.3.13",
-    "babel-core": "6.3.17",
-    "babel-loader": "6.2.0",
+    "babel": "6.3.26",
+    "babel-core": "6.4.0",
+    "babel-loader": "6.2.1",
     "babel-preset-es2015": "6.3.13",
     "babel-preset-react": "6.3.13",
     "concurrently": "1.0.0",
-    "fetch-plus": "3.4.0",
-    "fetch-plus-json": "3.4.0",
+    "fetch-plus": "3.6.1",
+    "fetch-plus-json": "3.6.0",
     "isomorphic-fetch": "2.2.0",
     "json-loader": "0.5.4",
+    "react": "0.14.6",
+    "react-dom": "0.14.6",
     "react-hot-loader": "1.3.0",
     "react-inline-css": "2.0.1",
-    "webpack": "1.12.9",
+    "webpack": "1.12.10",
     "webpack-dev-server": "1.14.0"
   },
   "engines": {
