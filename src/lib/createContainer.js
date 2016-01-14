@@ -44,9 +44,7 @@ module.exports = function (Component, options) {
 				var promise = Container.fragments[fragmentName](variables);
 
 				if (typeof promise === "function" && isRootContainer(Container)) {
-					return new promiseProxy.Promise(function (resolve, reject) {
-						resolve(promise);
-					});
+					return promiseProxy.Promise.resolve(promise);
 				}
 
 				return promise;
@@ -94,11 +92,16 @@ module.exports = function (Component, options) {
 			this._mounted = true;
 
 			if (isRootContainer(Container)) {
-				var deferredFragments = this.missingFragments(false);
+				var promise = this.fetching || Promise.resolve(null);
+				var _this = this;
 
-				if (deferredFragments.length) {
-					this.forceFetch({}, deferredFragments);
-				}
+				promise.then(function () {
+					var deferredFragments = _this.missingFragments(false);
+
+					if (deferredFragments.length) {
+						_this.forceFetch({}, deferredFragments);
+					}
+				});
 			}
 		},
 		componentWillUnmount: function () {
@@ -237,7 +240,10 @@ module.exports = function (Component, options) {
 				var missingFragments = this.missingFragments(true);
 
 				if (missingFragments.length) {
-					this.forceFetch({}, missingFragments, true);
+					var _this = this;
+					this.fetching = this.forceFetch({}, missingFragments, true).then(function () {
+						_this.fetching = false;
+					});
 				}
 				else {
 					this.callOnFetchHandler(promiseProxy.Promise.resolve({}));
