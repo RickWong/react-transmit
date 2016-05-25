@@ -3,7 +3,6 @@
  */
 "use strict";
 
-var assign                = require("./assign");
 var isRootContainer       = require("./isRootContainer");
 var overrideCreateElement = require("./overrideCreateElement");
 var React                 = require("./react");
@@ -23,13 +22,13 @@ module.exports = function (Component, props, targetDOMNode, callback) {
 			var args = [].slice.call(arguments, 1);
 
 			if (isRootContainer(type) && fetchedFragments.length) {
-				assign(props, fetchedFragments.pop());
+				Object.assign(props, fetchedFragments.pop());
 			}
 
 			return originalCreateElement.apply(null, args);
 		},
 		function () {
-			assign(props, {createElement: React.createElement});
+			Object.assign(props, {createElement: React.createElement});
 			ReactDOM.render(React.createElement(Component, props), targetDOMNode, callback);
 		}
 	);
