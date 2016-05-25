@@ -6,7 +6,6 @@
 var isRootContainer = require("./isRootContainer");
 var promiseProxy    = require("./promiseProxy");
 var React           = require("./react");
-var assign          = require("./assign");
 var assignProperty  = require("./assignProperty");
 
 /**
@@ -39,7 +38,7 @@ module.exports = function (Component, options) {
 					throw new Error(Component.displayName + " has no '" + fragmentName +"' fragment")
 				}
 
-				variables = assign({}, Container.variables, variables || {});
+				variables = Object.assign({}, Container.variables, variables || {});
 
 				var promise = Container.fragments[fragmentName](variables);
 
@@ -82,7 +81,7 @@ module.exports = function (Component, options) {
 				return promiseProxy.Promise.all(
 					promises
 				).then(function (fetchedFragments) {
-					return assign.apply(null, fetchedFragments);
+					return Object.assign.apply(null, fetchedFragments);
 				});
 			}
 		},
@@ -128,7 +127,7 @@ module.exports = function (Component, options) {
 				}
 			}
 
-			assign(_this.variables, nextVariables);
+			Object.assign(_this.variables, nextVariables);
 			var fetchPromise = Container.getAllFragments(_this.variables, optionalFragmentNames);
 
 			fetchPromise.then(function (fetchedFragments) {
@@ -233,7 +232,7 @@ module.exports = function (Component, options) {
 		componentWillMount: function () {
 			var externalVariables = this.props && this.props.variables || {};
 
-			this.variables = assign({}, Container.variables, externalVariables);
+			this.variables = Object.assign({}, Container.variables, externalVariables);
 			this.variables = Container.prepareVariables(this.variables);
 
 			if (isRootContainer(Container)) {
@@ -278,7 +277,7 @@ module.exports = function (Component, options) {
 
 			return React.createElement(
 				Component,
-				assign({}, props, state, {transmit: transmit})
+				Object.assign({}, props, state, {transmit: transmit})
 			);
 		}
 	});

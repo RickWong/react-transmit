@@ -3,7 +3,6 @@
  */
 "use strict";
 
-var assign                = require("./assign");
 var isRootContainer       = require("./isRootContainer");
 var overrideCreateElement = require("./overrideCreateElement");
 var promiseProxy          = require("./promiseProxy");
@@ -18,7 +17,7 @@ module.exports = function (Component, props) {
 
 	return new promiseProxy.Promise(function (resolve, reject) {
 		var promises = [];
-		var myProps  = assign({}, props);
+		var myProps  = Object.assign({}, props);
 
 		var reactString;
 
@@ -35,7 +34,7 @@ module.exports = function (Component, props) {
 				return originalCreateElement.apply(null, args);
 			},
 			function () {
-				assign(myProps, {createElement: React.createElement});
+				Object.assign(myProps, {createElement: React.createElement});
 				reactString = ReactDOM.renderToString(React.createElement(Component, myProps));
 			}
 		);
@@ -53,13 +52,13 @@ module.exports = function (Component, props) {
 						var args = [].slice.call(arguments, 1);
 
 						if (isRootContainer(type) && fetchedFragments.length) {
-							assign(props, fetchedFragments.pop());
+							Object.assign(props, fetchedFragments.pop());
 						}
 
 						return originalCreateElement.apply(null, args);
 					},
 					function () {
-						assign(myProps, {createElement: React.createElement});
+						Object.assign(myProps, {createElement: React.createElement});
 						reactString = ReactDOM.renderToString(React.createElement(Component, myProps));
 					}
 				);
