@@ -84,6 +84,9 @@ module.exports = function (Component, options) {
 				).then(function (fetchedFragments) {
 					return assign.apply(null, fetchedFragments);
 				});
+			},
+			getComponent: function () {
+				return Component;
 			}
 		},
 		componentDidMount: function () {

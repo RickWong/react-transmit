@@ -3,6 +3,4 @@
  */
 "use strict";
 
-var React = require("./react");
-
-module.exports = React.__spread;
+module.exports = require("object-assign");
