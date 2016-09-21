@@ -22,7 +22,8 @@
     "watch": "concurrently --kill-others 'npm run watch-client' 'npm run localhost'"
   },
   "dependencies": {
-    "ascii-json": ">= 0.2.0"
+    "ascii-json": ">= 0.2.0",
+    "object-assign": ">= 4.1.0"
   },
   "devDependencies": {
     "babel": "^6.5.2",
