@@ -3,4 +3,4 @@
  */
 "use strict";
 
-module.exports = require("react");
+module.exports = require("react-native");
