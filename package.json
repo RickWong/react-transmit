@@ -19,28 +19,28 @@
     "localhost": "sleep 3; which open && open http://localhost:8080",
     "build": "webpack --verbose --colors --display-error-details --config webpack.client.js",
     "watch-client": "webpack --verbose --colors --display-error-details --config webpack.client-watch.js && webpack-dev-server --config webpack.client-watch.js",
-    "watch": "concurrent --kill-others 'npm run watch-client' 'npm run localhost'"
+    "watch": "concurrently --kill-others 'npm run watch-client' 'npm run localhost'"
   },
   "dependencies": {
     "ascii-json": ">= 0.2.0"
   },
   "devDependencies": {
-    "babel": "6.3.26",
-    "babel-core": "6.4.0",
-    "babel-loader": "6.2.1",
-    "babel-preset-es2015": "6.3.13",
-    "babel-preset-react": "6.3.13",
-    "concurrently": "1.0.0",
-    "fetch-plus": "3.6.1",
-    "fetch-plus-json": "3.6.0",
-    "isomorphic-fetch": "2.2.0",
-    "json-loader": "0.5.4",
-    "react": "0.14.6",
-    "react-dom": "0.14.6",
-    "react-hot-loader": "1.3.0",
-    "react-inline-css": "2.1.0",
-    "webpack": "1.12.11",
-    "webpack-dev-server": "1.14.1"
+    "babel": "^6.5.2",
+    "babel-core": "^6.14.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-react": "^6.11.1",
+    "concurrently": "^2.2.0",
+    "fetch-plus": "^3.10.4",
+    "fetch-plus-json": "^3.10.4",
+    "isomorphic-fetch": "^2.2.1",
+    "json-loader": "^0.5.4",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "react-hot-loader": "^1.3.0",
+    "react-inline-css": "^2.3.0",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.1"
   },
   "engines": {
     "node": ">=0.10.32"

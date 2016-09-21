@@ -2,8 +2,8 @@ var webpack = require("webpack");
 var config = require("./webpack.client.js");
 
 config.cache = true;
-config.debug = true;
-config.devtool = "eval-sourcemap";
+config.debug = false;
+config.devtool = "cheap-eval-source-map";
 
 config.entry.unshift(
 	"webpack-dev-server/client?http://localhost:8080",
