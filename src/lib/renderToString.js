@@ -53,7 +53,7 @@ module.exports = function (Component, props) {
 						var args = [].slice.call(arguments, 1);
 
 						if (isRootContainer(type) && fetchedFragments.length) {
-							assign(props, fetchedFragments.pop());
+							assign(props, fetchedFragments.shift());
 						}
 
 						return originalCreateElement.apply(null, args);
