@@ -21,8 +21,16 @@ Inspired by: [Building the Facebook Newsfeed with Relay](http://facebook.github.
 
 ## Installation
 
+
 ```bash
+	# For web or Node:
 	npm install react-transmit
+	
+	# For React Native version 0.25 or later:
+	npm install react-transmit
+	
+	# For React Native version 0.25 or before:
+	npm install react-transmit-native
 ```
 
 ## Usage
