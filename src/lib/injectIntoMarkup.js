@@ -13,10 +13,12 @@ var asciiJSON = require('ascii-json');
  * @param {String} markup
  * @param {Object} data
  * @param {?Array} scripts
+ * @param {?String} insertAfterClosingTag
  */
-function injectIntoMarkup(markup, data, scripts) {
+function injectIntoMarkup(markup, data, scripts, insertAfterClosingTag = 'body') {
 	var escapedJson = asciiJSON.stringify(data).replace(/<\//g, '<\\/');
 	var injected = '<script>window.__reactTransmitPacket=' + escapedJson + '</script>';
+	var closingTag = '</' + insertAfterClosingTag + '>'
 
 	if (scripts) {
 		injected += scripts.map(function(script) {
@@ -24,8 +26,8 @@ function injectIntoMarkup(markup, data, scripts) {
 		}).join('');
 	}
 
-	if (markup.indexOf('</body>') > -1) {
-		return markup.replace('</body>', injected + '$&');
+	if (markup.indexOf(closingTag) > -1) {
+		return markup.replace(closingTag, injected + '$&');
 	} else {
 		return markup + injected;
 	}
