@@ -6,6 +6,8 @@
 var isRootContainer = require("./isRootContainer");
 var promiseProxy    = require("./promiseProxy");
 var React           = require("./react");
+var PropTypes     	= require("./prop-types");
+var createClass     = require("./create-react-class");
 var assign          = require("./assign");
 var assignProperty  = require("./assignProperty");
 
@@ -16,14 +18,14 @@ var assignProperty  = require("./assignProperty");
 module.exports = function (Component, options) {
 	options = arguments[1] || {};
 
-	var Container = React.createClass({
+	var Container = createClass({
 		displayName: (Component.displayName || Component.name) + "TransmitContainer",
 		propTypes: {
-			variables:             React.PropTypes.object,
-			onFetch:               React.PropTypes.func,
-			renderLoading:         React.PropTypes.oneOfType([
-				React.PropTypes.element,
-				React.PropTypes.func
+			variables:             PropTypes.object,
+			onFetch:               PropTypes.func,
+			renderLoading:         PropTypes.oneOfType([
+				PropTypes.element,
+				PropTypes.func
 			])
 		},
 		statics: {
@@ -278,7 +280,6 @@ module.exports = function (Component, options) {
 				return (typeof props.renderLoading === "function") ?
 					props.renderLoading() : props.renderLoading || null;
 			}
-
 			return React.createElement(
 				Component,
 				assign({}, props, state, {transmit: transmit})
